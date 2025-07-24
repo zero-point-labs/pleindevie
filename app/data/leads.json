@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Antreas Kyriakou",
+    "email": "akyriakouu@gmail.com",
+    "phone": "+35797774317",
+    "projectType": "Kitchen",
+    "budget": "$200k+",
+    "timeline": "Just exploring",
+    "message": "hello",
+    "termsAccepted": true,
+    "marketingConsent": true,
+    "id": "lead_1753374672131_t8f1f30nv",
+    "timestamp": "2025-07-24T16:31:12.131Z",
+    "status": "new"
+  },
+  {
+    "name": "Marios Kosta",
+    "email": "info@shillalace.com",
+    "phone": "+35796774317",
+    "projectType": "Living Room",
+    "budget": "$100k-$200k",
+    "timeline": "3-6 months",
+    "message": "Hey",
+    "termsAccepted": true,
+    "marketingConsent": true,
+    "id": "lead_1753374957057_4ft0kkqgh",
+    "timestamp": "2025-07-24T16:35:57.057Z",
+    "status": "new"
+  },
+  {
+    "name": "giorgos zeropoint",
+    "email": "info@zeropoint-labs.com",
+    "phone": "+35797774317",
+    "projectType": "Bathroom",
+    "budget": "$50k-$100k",
+    "timeline": "ASAP",
+    "message": "Helloo",
+    "termsAccepted": true,
+    "marketingConsent": true,
+    "id": "lead_1753375226804_b234d04x8",
+    "timestamp": "2025-07-24T16:40:26.804Z",
+    "status": "new"
+  }
+]

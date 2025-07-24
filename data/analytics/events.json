@@ -566,5 +566,71 @@
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
       "ip": "::1"
     }
+  },
+  {
+    "id": "event_1753378876780_qjqvuuy7t",
+    "type": "page_view",
+    "timestamp": "2025-07-24T17:41:16.780Z",
+    "sessionId": "session_1753378876425_i6n30l347",
+    "data": {
+      "page": "/",
+      "referrer": "direct",
+      "viewport": {
+        "width": 1470,
+        "height": 797
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+      "ip": "::1"
+    }
+  },
+  {
+    "id": "event_1753378885070_o1hikhzdw",
+    "type": "section_view",
+    "timestamp": "2025-07-24T17:41:25.070Z",
+    "sessionId": "session_1753378876425_i6n30l347",
+    "data": {
+      "section": "hero",
+      "referrer": "direct",
+      "viewport": {
+        "width": 1470,
+        "height": 797
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+      "ip": "::1"
+    }
+  },
+  {
+    "id": "event_1753378886698_jpjsc0xlf",
+    "type": "section_view",
+    "timestamp": "2025-07-24T17:41:26.698Z",
+    "sessionId": "session_1753378876425_i6n30l347",
+    "data": {
+      "section": "lead-capture-form",
+      "referrer": "direct",
+      "viewport": {
+        "width": 1470,
+        "height": 797
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+      "ip": "::1"
+    }
+  },
+  {
+    "id": "event_1753378969729_pb15c4xwh",
+    "type": "lead_form_submit",
+    "timestamp": "2025-07-24T17:42:49.729Z",
+    "sessionId": "session_1753378876425_i6n30l347",
+    "data": {
+      "projectType": "Kitchen",
+      "budget": "Not Sure",
+      "timeline": "Just exploring",
+      "referrer": "direct",
+      "viewport": {
+        "width": 1470,
+        "height": 797
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+      "ip": "::1"
+    }
   }
 ]

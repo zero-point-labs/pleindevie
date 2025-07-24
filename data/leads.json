@@ -40,5 +40,19 @@
     "id": "lead_1753375226804_b234d04x8",
     "timestamp": "2025-07-24T16:40:26.804Z",
     "status": "new"
+  },
+  {
+    "name": "Antreas Kyriakoud",
+    "email": "kontogiorgouchrisa@gmail.com",
+    "phone": "+35797774317",
+    "projectType": "Kitchen",
+    "budget": "Not Sure",
+    "timeline": "Just exploring",
+    "message": "d",
+    "termsAccepted": true,
+    "marketingConsent": false,
+    "id": "lead_1753378969519_tn75fq6tx",
+    "timestamp": "2025-07-24T17:42:49.519Z",
+    "status": "new"
   }
 ]

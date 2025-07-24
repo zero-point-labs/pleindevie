@@ -1,0 +1,199 @@
+# Task ID: 11
+# Title: Implement Analytics and Performance Monitoring
+# Status: pending
+# Dependencies: 1, 3
+# Priority: medium
+# Description: Integrate Google Analytics 4 with conversion tracking and implement performance monitoring to ensure the landing page meets performance targets.
+# Details:
+1. Set up Google Analytics 4 with conversion tracking
+2. Implement event tracking for key user interactions
+3. Create custom dimensions and metrics for renovation-specific data
+4. Set up performance monitoring for core web vitals
+5. Implement error tracking and reporting
+6. Create dashboard for monitoring conversion metrics
+7. Set up A/B testing framework for optimization
+
+Example implementation:
+```tsx
+// utils/analytics.ts
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+
+// Initialize Google Analytics
+export const initGA = () => {
+  if (typeof window !== 'undefined' && !window.GA_INITIALIZED) {
+    // Google Analytics 4 initialization
+    window.dataLayer = window.dataLayer || [];
+    function gtag(...args) {
+      window.dataLayer.push(args);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX'); // Replace with actual GA4 measurement ID
+    
+    window.GA_INITIALIZED = true;
+  }
+};
+
+// Track page views
+export const pageview = (url) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('config', 'G-XXXXXXXXXX', {
+      page_path: url,
+    });
+  }
+};
+
+// Track events
+export const event = ({ action, category, label, value }) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+    });
+  }
+};
+
+// Track form submissions
+export const trackFormSubmission = (formName, success = true) => {
+  event({
+    action: success ? 'form_submission_success' : 'form_submission_failure',
+    category: 'Lead Generation',
+    label: formName,
+    value: 1,
+  });
+};
+
+// Track portfolio interactions
+export const trackPortfolioInteraction = (projectId, projectCategory) => {
+  event({
+    action: 'portfolio_view',
+    category: 'Engagement',
+    label: `${projectCategory} - ${projectId}`,
+    value: 1,
+  });
+};
+
+// Track service interactions
+export const trackServiceInteraction = (serviceId, serviceTitle) => {
+  event({
+    action: 'service_view',
+    category: 'Engagement',
+    label: serviceTitle,
+    value: 1,
+  });
+};
+
+// React hook for analytics
+export const useAnalytics = () => {
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Initialize GA
+    initGA();
+    
+    // Track initial page view
+    pageview(router.asPath);
+    
+    // Track page views on route change
+    const handleRouteChange = (url) => {
+      pageview(url);
+    };
+    
+    router.events.on('routeChangeComplete', handleRouteChange);
+    
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events, router.asPath]);
+  
+  return { event, trackFormSubmission, trackPortfolioInteraction, trackServiceInteraction };
+};
+
+// Performance monitoring
+export const reportWebVitals = ({ id, name, label, value }) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', name, {
+      event_category: 'Web Vitals',
+      event_label: label,
+      value: Math.round(name === 'CLS' ? value * 1000 : value),
+      non_interaction: true,
+      metric_id: id,
+    });
+  }
+};
+```
+
+```tsx
+// pages/_app.tsx
+import { useAnalytics, reportWebVitals } from '@/utils/analytics';
+import { useEffect } from 'react';
+
+function MyApp({ Component, pageProps }) {
+  useAnalytics(); // Initialize analytics and page tracking
+  
+  // Error tracking
+  useEffect(() => {
+    const handleError = (error, errorInfo) => {
+      console.error('Application error:', error, errorInfo);
+      
+      // Report error to analytics
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'javascript_error', {
+          event_category: 'Error',
+          event_label: error.message,
+          value: 1,
+          non_interaction: true,
+        });
+      }
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+  
+  return <Component {...pageProps} />;
+}
+
+export function reportWebVitals(metric) {
+  reportWebVitals(metric);
+}
+
+export default MyApp;
+```
+
+# Test Strategy:
+1. Verify Google Analytics 4 integration and data collection
+2. Test event tracking for key user interactions (form submissions, portfolio views, etc.)
+3. Validate conversion tracking for lead form submissions
+4. Test performance monitoring for core web vitals
+5. Verify error tracking and reporting functionality
+6. Test A/B testing framework setup
+7. Validate that custom dimensions and metrics are correctly implemented
+8. Verify that the analytics dashboard displays accurate data
+
+# Subtasks:
+## 1. Set up Google Analytics 4 integration [pending]
+### Dependencies: None
+### Description: Implement Google Analytics 4 with proper event tracking for user interactions across the website
+### Details:
+Install GA4 tracking code, configure data streams, set up enhanced measurement, create custom events for key user actions, implement user properties, ensure compliance with privacy regulations (GDPR, CCPA), and verify data collection accuracy through debug mode
+
+## 2. Implement conversion tracking [pending]
+### Dependencies: 11.1
+### Description: Set up tracking for lead forms and key user interactions to measure conversion rates
+### Details:
+Define conversion goals, implement event tracking for form submissions, track multi-step processes, set up e-commerce tracking if applicable, create custom conversion metrics, integrate with CRM systems if needed, and establish attribution models
+
+## 3. Create performance monitoring system [pending]
+### Dependencies: 11.1
+### Description: Implement monitoring for Core Web Vitals and error tracking to ensure optimal site performance
+### Details:
+Set up real user monitoring (RUM), implement Core Web Vitals tracking (LCP, FID, CLS), create error logging system, establish performance baselines, configure alerting for performance degradation, implement crash reporting, and create performance dashboards
+
+## 4. Build A/B testing framework [pending]
+### Dependencies: 11.1, 11.2, 11.3
+### Description: Develop a framework for running optimization experiments to improve conversion rates
+### Details:
+Select A/B testing tool, implement variant serving logic, create statistical analysis framework, design experiment tracking system, establish experiment documentation process, implement feature flagging capabilities, and develop a process for implementing winning variants
+

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { leadCaptureFormSchema, type LeadCaptureFormData } from '@/lib/validation';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 // Define the lead data structure with additional fields
 interface Lead extends LeadCaptureFormData {
@@ -8,8 +10,7 @@ interface Lead extends LeadCaptureFormData {
   status: 'new' | 'contacted' | 'qualified' | 'closed';
 }
 
-// Global variable to store leads across serverless function invocations
-// In a real production app, you'd use a database like PostgreSQL, MongoDB, or Vercel KV
+// Global variable as backup storage
 declare global {
   var globalLeads: Lead[] | undefined;
 }
@@ -17,6 +18,59 @@ declare global {
 // Initialize global leads array
 if (!global.globalLeads) {
   global.globalLeads = [];
+}
+
+// Path to the leads data file (for local development)
+const LEADS_FILE_PATH = path.join(process.cwd(), 'data', 'leads.json');
+
+// Storage functions that work in both environments
+async function readLeads(): Promise<Lead[]> {
+  try {
+    // Try to read from file first (works in local development)
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        const dataDir = path.dirname(LEADS_FILE_PATH);
+        await fs.mkdir(dataDir, { recursive: true });
+        
+        const data = await fs.readFile(LEADS_FILE_PATH, 'utf-8');
+        const fileLeads = JSON.parse(data);
+        
+        // Sync global storage with file storage
+        global.globalLeads = fileLeads;
+        return fileLeads;
+      } catch (fileError) {
+        // File doesn't exist or can't be read, create it with empty array
+        await fs.writeFile(LEADS_FILE_PATH, JSON.stringify([], null, 2));
+        return [];
+      }
+    }
+    
+    // In production (Vercel), use global variable
+    return global.globalLeads || [];
+  } catch (error) {
+    console.error('Error reading leads:', error);
+    return global.globalLeads || [];
+  }
+}
+
+async function writeLeads(leads: Lead[]): Promise<void> {
+  try {
+    // Update global storage
+    global.globalLeads = leads;
+    
+    // Try to write to file (works in local development)
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        const dataDir = path.dirname(LEADS_FILE_PATH);
+        await fs.mkdir(dataDir, { recursive: true });
+        await fs.writeFile(LEADS_FILE_PATH, JSON.stringify(leads, null, 2));
+      } catch (fileError) {
+        console.log('File write failed (expected in Vercel), using memory storage');
+      }
+    }
+  } catch (error) {
+    console.error('Error writing leads:', error);
+  }
 }
 
 // Function to send lead to external services (optional)
@@ -68,8 +122,7 @@ async function sendLeadToExternalService(lead: Lead) {
 // GET endpoint to retrieve leads
 export async function GET() {
   try {
-    // Return the global leads array
-    const leads = global.globalLeads || [];
+    const leads = await readLeads();
     return NextResponse.json({ success: true, leads }, { status: 200 });
   } catch (error) {
     console.error('Error fetching leads:', error);
@@ -110,27 +163,29 @@ export async function POST(request: NextRequest) {
       status: 'new',
     };
 
-    // Store in global array
-    if (!global.globalLeads) {
-      global.globalLeads = [];
-    }
-    global.globalLeads.push(newLead);
-
+    // Read existing leads
+    const existingLeads = await readLeads();
+    
+    // Add the new lead
+    existingLeads.push(newLead);
+    
     // Keep only the last 100 leads to prevent memory issues
-    if (global.globalLeads.length > 100) {
-      global.globalLeads = global.globalLeads.slice(-100);
-    }
+    const leadsToStore = existingLeads.slice(-100);
+    
+    // Save leads
+    await writeLeads(leadsToStore);
 
     // Send to external services (webhooks, email, etc.)
     await sendLeadToExternalService(newLead);
 
-    // Log the lead data for debugging (remove sensitive info in production)
+    // Log the lead data for debugging
     console.log('New lead captured:', {
       id: newLead.id,
       name: newLead.name,
       email: newLead.email,
       projectType: newLead.projectType,
       timestamp: newLead.timestamp,
+      totalLeads: leadsToStore.length
     });
 
     // Return success response

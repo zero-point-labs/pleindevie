@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { leadCaptureFormSchema, type LeadCaptureFormData } from '@/lib/validation';
-import { promises as fs } from 'fs';
-import path from 'path';
 
 // Define the lead data structure with additional fields
 interface Lead extends LeadCaptureFormData {
@@ -10,54 +8,70 @@ interface Lead extends LeadCaptureFormData {
   status: 'new' | 'contacted' | 'qualified' | 'closed';
 }
 
-// Path to the leads data file
-const LEADS_FILE_PATH = path.join(process.cwd(), 'data', 'leads.json');
+// In production, we'll store leads in memory for the request duration
+// and optionally send to external services (webhook, email, etc.)
+let temporaryLeads: Lead[] = [];
 
-// Ensure the data directory and file exist
-async function ensureDataFile() {
+// Function to send lead to external services (optional)
+async function sendLeadToExternalService(lead: Lead) {
+  // You can configure these environment variables in Vercel
+  const webhookUrl = process.env.WEBHOOK_URL;
+  const emailService = process.env.EMAIL_SERVICE_URL;
+  
   try {
-    const dataDir = path.dirname(LEADS_FILE_PATH);
-    await fs.mkdir(dataDir, { recursive: true });
-    
-    // Check if file exists, if not create it with empty array
-    try {
-      await fs.access(LEADS_FILE_PATH);
-    } catch {
-      await fs.writeFile(LEADS_FILE_PATH, JSON.stringify([], null, 2));
+    // Send to webhook if configured
+    if (webhookUrl) {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lead)
+      });
     }
+    
+    // Send to email service if configured
+    if (emailService) {
+      await fetch(emailService, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: process.env.ADMIN_EMAIL || 'admin@example.com',
+          subject: `New Lead: ${lead.name}`,
+          html: `
+            <h2>New Lead Submission</h2>
+            <p><strong>Name:</strong> ${lead.name}</p>
+            <p><strong>Email:</strong> ${lead.email}</p>
+            <p><strong>Phone:</strong> ${lead.phone}</p>
+            <p><strong>Project Type:</strong> ${lead.projectType}</p>
+            <p><strong>Budget:</strong> ${lead.budget}</p>
+            <p><strong>Timeline:</strong> ${lead.timeline}</p>
+            <p><strong>Message:</strong> ${lead.message || 'No additional message'}</p>
+            <p><strong>Timestamp:</strong> ${lead.timestamp}</p>
+          `
+        })
+      });
+    }
+    
+    console.log('Lead sent to external services successfully');
   } catch (error) {
-    console.error('Error ensuring data file:', error);
+    console.error('Error sending lead to external services:', error);
+    // Don't throw here - we still want to return success to the user
   }
 }
 
-// Read leads from file
-async function readLeads(): Promise<Lead[]> {
-  try {
-    await ensureDataFile();
-    const data = await fs.readFile(LEADS_FILE_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading leads:', error);
-    return [];
-  }
-}
-
-// Write leads to file
-async function writeLeads(leads: Lead[]): Promise<void> {
-  try {
-    await ensureDataFile();
-    await fs.writeFile(LEADS_FILE_PATH, JSON.stringify(leads, null, 2));
-  } catch (error) {
-    console.error('Error writing leads:', error);
-    throw error;
-  }
-}
-
-// GET endpoint to retrieve all leads
+// GET endpoint to retrieve leads (returns empty array in production for security)
 export async function GET() {
   try {
-    const leads = await readLeads();
-    return NextResponse.json({ success: true, leads }, { status: 200 });
+    // In production, we don't expose leads via GET for security reasons
+    // You should use a proper database and authentication for this
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { success: true, leads: [], message: 'Leads access restricted in production' },
+        { status: 200 }
+      );
+    }
+    
+    // In development, return temporary leads
+    return NextResponse.json({ success: true, leads: temporaryLeads }, { status: 200 });
   } catch (error) {
     console.error('Error fetching leads:', error);
     return NextResponse.json(
@@ -77,6 +91,7 @@ export async function POST(request: NextRequest) {
     const validationResult = leadCaptureFormSchema.safeParse(body);
 
     if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error.issues);
       return NextResponse.json(
         {
           error: 'Validation failed',
@@ -96,20 +111,18 @@ export async function POST(request: NextRequest) {
       status: 'new',
     };
 
-    // Read existing leads
-    const existingLeads = await readLeads();
+    // Store temporarily (for development)
+    temporaryLeads.push(newLead);
 
-    // Add the new lead
-    existingLeads.push(newLead);
+    // Send to external services (webhooks, email, etc.)
+    await sendLeadToExternalService(newLead);
 
-    // Save back to file
-    await writeLeads(existingLeads);
-
-    // Log the lead data for debugging
-    console.log('New lead saved:', {
+    // Log the lead data for debugging (remove sensitive info in production)
+    console.log('New lead captured:', {
       id: newLead.id,
       name: newLead.name,
       email: newLead.email,
+      projectType: newLead.projectType,
       timestamp: newLead.timestamp,
     });
 

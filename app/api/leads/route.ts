@@ -8,9 +8,16 @@ interface Lead extends LeadCaptureFormData {
   status: 'new' | 'contacted' | 'qualified' | 'closed';
 }
 
-// In production, we'll store leads in memory for the request duration
-// and optionally send to external services (webhook, email, etc.)
-const temporaryLeads: Lead[] = [];
+// Global variable to store leads across serverless function invocations
+// In a real production app, you'd use a database like PostgreSQL, MongoDB, or Vercel KV
+declare global {
+  var globalLeads: Lead[] | undefined;
+}
+
+// Initialize global leads array
+if (!global.globalLeads) {
+  global.globalLeads = [];
+}
 
 // Function to send lead to external services (optional)
 async function sendLeadToExternalService(lead: Lead) {
@@ -58,20 +65,12 @@ async function sendLeadToExternalService(lead: Lead) {
   }
 }
 
-// GET endpoint to retrieve leads (returns empty array in production for security)
+// GET endpoint to retrieve leads
 export async function GET() {
   try {
-    // In production, we don't expose leads via GET for security reasons
-    // You should use a proper database and authentication for this
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json(
-        { success: true, leads: [], message: 'Leads access restricted in production' },
-        { status: 200 }
-      );
-    }
-    
-    // In development, return temporary leads
-    return NextResponse.json({ success: true, leads: temporaryLeads }, { status: 200 });
+    // Return the global leads array
+    const leads = global.globalLeads || [];
+    return NextResponse.json({ success: true, leads }, { status: 200 });
   } catch (error) {
     console.error('Error fetching leads:', error);
     return NextResponse.json(
@@ -111,8 +110,16 @@ export async function POST(request: NextRequest) {
       status: 'new',
     };
 
-    // Store temporarily (for development)
-    temporaryLeads.push(newLead);
+    // Store in global array
+    if (!global.globalLeads) {
+      global.globalLeads = [];
+    }
+    global.globalLeads.push(newLead);
+
+    // Keep only the last 100 leads to prevent memory issues
+    if (global.globalLeads.length > 100) {
+      global.globalLeads = global.globalLeads.slice(-100);
+    }
 
     // Send to external services (webhooks, email, etc.)
     await sendLeadToExternalService(newLead);

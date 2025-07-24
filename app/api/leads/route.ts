@@ -10,7 +10,7 @@ interface Lead extends LeadCaptureFormData {
 
 // In production, we'll store leads in memory for the request duration
 // and optionally send to external services (webhook, email, etc.)
-let temporaryLeads: Lead[] = [];
+const temporaryLeads: Lead[] = [];
 
 // Function to send lead to external services (optional)
 async function sendLeadToExternalService(lead: Lead) {

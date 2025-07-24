@@ -78,10 +78,12 @@ export const CompareSlider = ({
     >
       {/* Before Image (Background) */}
       <div className="relative w-full h-full">
-        <img
+        <Image
           src={beforeImage}
           alt="Before renovation"
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
       </div>
 
@@ -92,10 +94,12 @@ export const CompareSlider = ({
           clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`,
         }}
       >
-        <img
+        <Image
           src={afterImage}
           alt="After renovation"
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
       </div>
 

@@ -6,6 +6,37 @@ import { AnalyticsEvent, AnalyticsSession, AnalyticsSummary } from '@/types';
 let analyticsEvents: AnalyticsEvent[] = [];
 let analyticsSessions: AnalyticsSession[] = [];
 
+// Helper function to parse user agent for device/browser info
+function parseUserAgent(userAgent: string) {
+  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(userAgent);
+  const isTablet = /iPad|Android.*Tablet/i.test(userAgent);
+  const device = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop';
+  
+  let browser = 'Other';
+  if (userAgent.includes('Chrome')) browser = 'Chrome';
+  else if (userAgent.includes('Firefox')) browser = 'Firefox';
+  else if (userAgent.includes('Safari')) browser = 'Safari';
+  else if (userAgent.includes('Edge')) browser = 'Edge';
+  
+  let os = 'Other';
+  if (userAgent.includes('Windows')) os = 'Windows';
+  else if (userAgent.includes('Mac')) os = 'macOS';
+  else if (userAgent.includes('Linux')) os = 'Linux';
+  else if (userAgent.includes('Android')) os = 'Android';
+  else if (userAgent.includes('iOS')) os = 'iOS';
+  
+  return { device, browser, os };
+}
+
+// Helper function to get traffic source from referrer
+function getTrafficSource(referrer: string): string {
+  if (!referrer || referrer === 'direct') return 'direct';
+  if (referrer.includes('google')) return 'organic';
+  if (referrer.includes('facebook') || referrer.includes('twitter') || referrer.includes('linkedin')) return 'social';
+  if (referrer.includes('email') || referrer.includes('newsletter')) return 'email';
+  return 'referral';
+}
+
 // Utility functions
 function getClientIP(request: NextRequest): string {
   return request.headers.get('x-forwarded-for') || 
@@ -22,42 +53,84 @@ function isThisMonth(dateString: string): boolean {
 // GET endpoint - retrieve analytics summary
 export async function GET() {
   try {
-    // Create mock data for production demo
-    const mockLeads = [
-      { projectType: 'kitchen', budget: '$50,000-$75,000', timestamp: new Date().toISOString() },
-      { projectType: 'bathroom', budget: '$25,000-$50,000', timestamp: new Date().toISOString() },
-      { projectType: 'living-room', budget: '$15,000-$25,000', timestamp: new Date().toISOString() }
-    ];
-
-    // Calculate metrics
+    // Core metrics
     const totalPageViews = analyticsEvents.filter(e => e.type === 'page_view').length;
     const uniqueVisitors = analyticsSessions.length;
-    const totalLeads = process.env.NODE_ENV === 'production' ? mockLeads.length : 0;
-    const conversionRate = totalPageViews > 0 ? (totalLeads / Math.max(uniqueVisitors, 1)) * 100 : 0;
+    const totalSessions = analyticsSessions.length; // For now, treating sessions = visitors
+    
+    // User behavior calculations
+    const avgPagesPerSession = totalSessions > 0 ? totalPageViews / totalSessions : 0;
+    const bounceRate = totalSessions > 0 ? 
+      (analyticsSessions.filter(s => s.pageViews === 1).length / totalSessions) * 100 : 0;
+    
+    // Device breakdown analysis
+    const deviceCounts: { [key: string]: number } = {};
+    const browserCounts: { [key: string]: number } = {};
+    const sourceCounts: { [key: string]: number } = {};
+    
+    analyticsSessions.forEach(session => {
+      const { device, browser } = parseUserAgent(session.userAgent);
+      const source = getTrafficSource(session.referrer);
+      
+      deviceCounts[device] = (deviceCounts[device] || 0) + 1;
+      browserCounts[browser] = (browserCounts[browser] || 0) + 1;
+      sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+    });
 
-    // This month metrics
-    const thisMonthEvents = analyticsEvents.filter(e => isThisMonth(e.timestamp));
-    const thisMonthLeads = mockLeads.filter(l => isThisMonth(l.timestamp));
-    const thisMonthSessions = analyticsSessions.filter(s => isThisMonth(s.startTime));
+    // Create device breakdown
+    const deviceBreakdown = Object.entries(deviceCounts).map(([type, count]) => ({
+      type: type as 'desktop' | 'mobile' | 'tablet',
+      browser: 'Mixed',
+      os: 'Mixed',
+      count,
+      percentage: totalSessions > 0 ? (count / totalSessions) * 100 : 0
+    }));
 
-    // Top project types from leads
-    const projectTypeCounts = mockLeads.reduce((acc: Record<string, number>, lead) => {
-      acc[lead.projectType] = (acc[lead.projectType] || 0) + 1;
-      return acc;
-    }, {});
-    const topProjectTypes = Object.entries(projectTypeCounts)
-      .map(([type, count]) => ({ type, count: count as number }))
+    // Create browser breakdown
+    const topBrowsers = Object.entries(browserCounts)
+      .map(([browser, count]) => ({
+        browser,
+        count,
+        percentage: totalSessions > 0 ? (count / totalSessions) * 100 : 0
+      }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    // Top budgets from leads
-    const budgetCounts = mockLeads.reduce((acc: Record<string, number>, lead) => {
-      acc[lead.budget] = (acc[lead.budget] || 0) + 1;
-      return acc;
-    }, {});
-    const topBudgets = Object.entries(budgetCounts)
-      .map(([budget, count]) => ({ budget, count: count as number }))
-      .sort((a, b) => b.count - a.count)
+    // Create traffic sources
+    const trafficSources = Object.entries(sourceCounts)
+      .map(([source, visitors]) => ({
+        source,
+        visitors,
+        percentage: totalSessions > 0 ? (visitors / totalSessions) * 100 : 0,
+        bounceRate: 45 // Mock data - would calculate from actual sessions
+      }))
+      .sort((a, b) => b.visitors - a.visitors);
+
+    // Mock geographic data (in production, you'd use IP geolocation)
+    const topCountries = [
+      { country: 'United States', visitors: Math.floor(uniqueVisitors * 0.4), percentage: 40 },
+      { country: 'Canada', visitors: Math.floor(uniqueVisitors * 0.2), percentage: 20 },
+      { country: 'United Kingdom', visitors: Math.floor(uniqueVisitors * 0.15), percentage: 15 },
+      { country: 'Australia', visitors: Math.floor(uniqueVisitors * 0.1), percentage: 10 },
+      { country: 'Germany', visitors: Math.floor(uniqueVisitors * 0.08), percentage: 8 },
+    ].filter(country => country.visitors > 0);
+
+    // Page performance analysis
+    const pageViews: { [key: string]: number } = {};
+    analyticsEvents.filter(e => e.type === 'page_view').forEach(event => {
+      const page = event.data.page || '/';
+      pageViews[page] = (pageViews[page] || 0) + 1;
+    });
+
+    const topPages = Object.entries(pageViews)
+      .map(([page, views]) => ({
+        page,
+        views,
+        avgTimeOnPage: 120, // Mock data - would calculate from session duration
+        bounceRate: 35, // Mock data
+        exitRate: 25 // Mock data
+      }))
+      .sort((a, b) => b.views - a.views)
       .slice(0, 5);
 
     // Daily stats for the last 30 days
@@ -69,30 +142,82 @@ export async function GET() {
 
     const dailyStats = last30Days.map(date => {
       const dayEvents = analyticsEvents.filter(e => e.timestamp.startsWith(date));
-      const dayLeads = mockLeads.filter(l => l.timestamp.startsWith(date));
       const daySessions = analyticsSessions.filter(s => s.startTime.startsWith(date));
       
       return {
         date,
         pageViews: dayEvents.filter(e => e.type === 'page_view').length,
-        leads: dayLeads.length,
-        visitors: daySessions.length
+        visitors: daySessions.length,
+        sessions: daySessions.length,
+        avgSessionDuration: 150 // Mock data - would calculate from actual session times
       };
     });
 
+    // Hourly pattern (mock data for demonstration)
+    const hourlyPattern = Array.from({ length: 24 }, (_, hour) => {
+      const hourVisitors = Math.floor(Math.random() * 20) + 1;
+      let activity: 'low' | 'medium' | 'high' = 'low';
+      if (hour >= 9 && hour <= 17) activity = 'high'; // Business hours
+      else if (hour >= 6 && hour <= 22) activity = 'medium';
+      
+      return {
+        hour,
+        visitors: hourVisitors,
+        activity
+      };
+    });
+
+    // Lead data (minimal)
+    const mockLeads = [
+      { projectType: 'kitchen', budget: '$50,000-$75,000', timestamp: new Date().toISOString() },
+      { projectType: 'bathroom', budget: '$25,000-$50,000', timestamp: new Date().toISOString() },
+    ];
+    const totalLeads = process.env.NODE_ENV === 'production' ? mockLeads.length : 0;
+    const conversionRate = totalSessions > 0 ? (totalLeads / totalSessions) * 100 : 0;
+
     const summary: AnalyticsSummary = {
-      totalPageViews: Math.max(totalPageViews, 1), // Ensure at least 1 for demo
+      // Core metrics
+      totalPageViews: Math.max(totalPageViews, 1),
       uniqueVisitors: Math.max(uniqueVisitors, 1),
+      totalSessions: Math.max(totalSessions, 1),
+      
+      // User behavior insights
+      userBehavior: {
+        avgSessionDuration: 145, // Mock data - in seconds
+        avgPagesPerSession: Math.max(avgPagesPerSession, 1.2),
+        newVisitorsPercentage: 75,
+        returningVisitorsPercentage: 25,
+        bounceRate: Math.max(bounceRate, 35)
+      },
+      
+      // Traffic analysis
+      trafficSources,
+      topPages,
+      
+      // Demographics & technology
+      deviceBreakdown,
+      topBrowsers,
+      
+      // Geographic insights
+      topCountries,
+      topCities: [], // Would implement with detailed geolocation
+      
+      // Time-based analytics
+      dailyStats,
+      hourlyPattern,
+      
+      // Minimal lead data
       totalLeads,
       conversionRate: Math.round(conversionRate * 100) / 100,
-      thisMonth: {
-        pageViews: Math.max(thisMonthEvents.filter(e => e.type === 'page_view').length, 1),
-        leads: thisMonthLeads.length,
-        visitors: Math.max(thisMonthSessions.length, 1)
-      },
-      topProjectTypes,
-      topBudgets,
-      dailyStats
+      topProjectTypes: mockLeads.reduce((acc: any[], lead) => {
+        const existing = acc.find(item => item.type === lead.projectType);
+        if (existing) {
+          existing.count++;
+        } else {
+          acc.push({ type: lead.projectType, count: 1 });
+        }
+        return acc;
+      }, [])
     };
 
     return NextResponse.json({ success: true, data: summary }, { status: 200 });

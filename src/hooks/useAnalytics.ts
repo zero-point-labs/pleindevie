@@ -25,6 +25,43 @@ interface UseAnalyticsReturn {
   sessionId: string;
 }
 
+// Google Analytics 4 helper functions
+const initGA4 = () => {
+  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_GA_ID) {
+    // Initialize GA4 if not already done
+    if (!window.gtag) {
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function() {
+        window.dataLayer.push(arguments);
+      };
+      window.gtag('js', new Date());
+      window.gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
+        // Configure for privacy and performance
+        anonymize_ip: true,
+        cookie_flags: 'SameSite=None;Secure',
+      });
+    }
+  }
+};
+
+const trackGA4Event = (eventName: string, parameters: Record<string, any> = {}) => {
+  if (typeof window !== 'undefined' && window.gtag && process.env.NEXT_PUBLIC_GA_ID) {
+    window.gtag('event', eventName, {
+      ...parameters,
+      // Add custom parameters for renovation business
+      timestamp: new Date().toISOString(),
+    });
+  }
+};
+
+const trackGA4PageView = (page: string) => {
+  if (typeof window !== 'undefined' && window.gtag && process.env.NEXT_PUBLIC_GA_ID) {
+    window.gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
+      page_path: page,
+    });
+  }
+};
+
 export function useAnalytics(): UseAnalyticsReturn {
   const sessionIdRef = useRef<string>('');
   const lastTrackTime = useRef<{ [key: string]: number }>({});
@@ -63,24 +100,60 @@ export function useAnalytics(): UseAnalyticsReturn {
         viewport: getViewportSize()
       };
 
-      await fetch('/api/analytics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type,
-          sessionId: sessionIdRef.current,
-          data: eventData
-        })
-      });
+      // Track to both custom analytics and GA4
+      await Promise.all([
+        // Custom analytics (existing)
+        fetch('/api/analytics', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type,
+            sessionId: sessionIdRef.current,
+            data: eventData
+          })
+        }),
+        
+        // Google Analytics 4 (new)
+        Promise.resolve(trackGA4Event(type, {
+          event_category: getEventCategory(type),
+          event_label: data.section || data.buttonText || '',
+          custom_parameter_project_type: data.projectType,
+          custom_parameter_budget: data.budget,
+          custom_parameter_timeline: data.timeline,
+          session_id: sessionIdRef.current,
+          page_path: data.page || (typeof window !== 'undefined' ? window.location.pathname : '/'),
+        }))
+      ]);
     } catch (error) {
       console.error('Failed to track analytics event:', error);
     }
   }, []);
 
-  // Generate or retrieve session ID
+  // Helper function to categorize events for better GA4 organization
+  const getEventCategory = (type: string): string => {
+    switch (type) {
+      case 'page_view':
+        return 'Navigation';
+      case 'lead_form_view':
+      case 'lead_form_submit':
+        return 'Lead Generation';
+      case 'section_view':
+        return 'Engagement';
+      case 'button_click':
+        return 'User Interaction';
+      default:
+        return 'General';
+    }
+  };
+
+  // Initialize GA4 and generate session ID
   useEffect(() => {
+    // Initialize GA4
+    initGA4();
+
+    // Generate or retrieve session ID
     let sessionId = sessionStorage.getItem('analytics_session_id');
     if (!sessionId) {
       sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -88,10 +161,12 @@ export function useAnalytics(): UseAnalyticsReturn {
     }
     sessionIdRef.current = sessionId;
 
-    // Track initial page view
+    // Track initial page view to both systems
     const trackInitialPageView = async () => {
       const currentPage = typeof window !== 'undefined' ? window.location.pathname : '/';
       await trackEvent('page_view', { page: currentPage });
+      // Also track to GA4 directly
+      trackGA4PageView(currentPage);
     };
     
     trackInitialPageView();
@@ -100,6 +175,7 @@ export function useAnalytics(): UseAnalyticsReturn {
   const trackPageView = async (page?: string): Promise<void> => {
     const currentPage = page || (typeof window !== 'undefined' ? window.location.pathname : '/');
     await trackEvent('page_view', { page: currentPage });
+    trackGA4PageView(currentPage);
   };
 
   const trackFormView = async (): Promise<void> => {
@@ -127,4 +203,12 @@ export function useAnalytics(): UseAnalyticsReturn {
     trackButtonClick,
     sessionId: sessionIdRef.current
   };
+}
+
+// Extend Window interface for TypeScript
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    dataLayer: any[];
+  }
 } 

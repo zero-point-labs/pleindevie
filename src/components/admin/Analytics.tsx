@@ -8,6 +8,7 @@ export default function Analytics() {
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [ga4Status, setGA4Status] = useState<'enabled' | 'disabled' | 'error'>('disabled');
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -25,7 +26,22 @@ export default function Analytics() {
       }
     };
 
+    // Check GA4 status
+    const checkGA4Status = () => {
+      if (process.env.NEXT_PUBLIC_GA_ID) {
+        if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+          setGA4Status('enabled');
+        } else {
+          setGA4Status('error');
+        }
+      } else {
+        setGA4Status('disabled');
+      }
+    };
+
     fetchAnalytics();
+    checkGA4Status();
+    
     // Refresh analytics every 30 seconds
     const interval = setInterval(fetchAnalytics, 30000);
     return () => clearInterval(interval);
@@ -94,6 +110,37 @@ export default function Analytics() {
     },
   ];
 
+  const getGA4StatusInfo = () => {
+    switch (ga4Status) {
+      case 'enabled':
+        return {
+          color: 'text-green-600',
+          bgColor: 'bg-green-100',
+          icon: '✅',
+          text: 'Google Analytics 4 Active',
+          description: 'Dual tracking enabled (Custom + GA4)'
+        };
+      case 'error':
+        return {
+          color: 'text-orange-600',
+          bgColor: 'bg-orange-100',
+          icon: '⚠️',
+          text: 'GA4 Configuration Issue',
+          description: 'Check GA4 setup in browser console'
+        };
+      default:
+        return {
+          color: 'text-blue-600',
+          bgColor: 'bg-blue-100',
+          icon: 'ℹ️',
+          text: 'Custom Analytics Only',
+          description: 'Add NEXT_PUBLIC_GA_ID to enable GA4'
+        };
+    }
+  };
+
+  const ga4Info = getGA4StatusInfo();
+
   return (
     <Card className="bg-white/95 backdrop-blur-sm border-yellow-400/20">
       <CardHeader>
@@ -101,6 +148,13 @@ export default function Analytics() {
           <span className="text-yellow-500">📊</span>
           Analytics Overview
         </CardTitle>
+        
+        {/* GA4 Status Indicator */}
+        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${ga4Info.bgColor} ${ga4Info.color}`}>
+          <span>{ga4Info.icon}</span>
+          <span className="font-medium">{ga4Info.text}</span>
+          <span className="text-xs opacity-75">• {ga4Info.description}</span>
+        </div>
       </CardHeader>
       <CardContent>
         {/* Analytics Cards Grid */}
@@ -174,6 +228,56 @@ export default function Analytics() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Analytics Information Panel */}
+        <div className="mt-6">
+          <div className="bg-gradient-to-br from-yellow-400/5 to-yellow-400/10 rounded-xl p-6 border border-yellow-400/20">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <span className="text-yellow-500">📊</span>
+              Analytics Configuration
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Current System */}
+              <div>
+                <h4 className="font-medium text-slate-800 mb-2">Current System</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Custom analytics API</li>
+                  <li>• Real-time tracking</li>
+                  <li>• Session-based storage</li>
+                  <li>• Custom dashboard</li>
+                </ul>
+              </div>
+              
+              {/* GA4 Integration */}
+              <div>
+                <h4 className="font-medium text-slate-800 mb-2">Google Analytics 4</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li className={ga4Status === 'enabled' ? 'text-green-600' : 'text-gray-400'}>
+                    • Professional reporting
+                  </li>
+                  <li className={ga4Status === 'enabled' ? 'text-green-600' : 'text-gray-400'}>
+                    • Advanced user insights
+                  </li>
+                  <li className={ga4Status === 'enabled' ? 'text-green-600' : 'text-gray-400'}>
+                    • Conversion tracking
+                  </li>
+                  <li className={ga4Status === 'enabled' ? 'text-green-600' : 'text-gray-400'}>
+                    • Long-term data retention
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            {ga4Status === 'disabled' && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>💡 Tip:</strong> To enable Google Analytics 4 tracking, add your GA4 Measurement ID 
+                  to the <code className="bg-blue-100 px-1 rounded">NEXT_PUBLIC_GA_ID</code> environment variable.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

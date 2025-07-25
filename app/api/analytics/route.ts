@@ -1,56 +1,108 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { AnalyticsEvent, AnalyticsSession, AnalyticsSummary } from '@/types';
+import { NextResponse } from 'next/server';
+import { AnalyticsSummary, AnalyticsEvent } from '../../../src/types';
+import { fetchGA4Analytics, fetchGA4DailyStats, fetchGA4PagePerformance } from '../../../src/lib/googleAnalytics';
 
-// In-memory storage for analytics (resets on each deployment)
-// In production, you'd want to use a database like Vercel KV, PostgreSQL, etc.
+// In-memory storage for demo purposes
+// In production, you'd use a proper database
 let analyticsEvents: AnalyticsEvent[] = [];
-let analyticsSessions: AnalyticsSession[] = [];
+let analyticsSessions: Array<{
+  id: string;
+  startTime: string;
+  endTime?: string;
+  pageViews: number;
+  userAgent: string;
+  referrer: string;
+  ipAddress: string;
+}> = [];
 
-// Helper function to parse user agent for device/browser info
+// Helper functions
 function parseUserAgent(userAgent: string) {
-  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(userAgent);
-  const isTablet = /iPad|Android.*Tablet/i.test(userAgent);
-  const device = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop';
+  const device = /Mobile|Android|iPhone|iPad/.test(userAgent) ? 
+    (/iPad/.test(userAgent) ? 'tablet' : 'mobile') : 'desktop';
   
-  let browser = 'Other';
+  let browser = 'Unknown';
   if (userAgent.includes('Chrome')) browser = 'Chrome';
   else if (userAgent.includes('Firefox')) browser = 'Firefox';
   else if (userAgent.includes('Safari')) browser = 'Safari';
   else if (userAgent.includes('Edge')) browser = 'Edge';
   
-  let os = 'Other';
-  if (userAgent.includes('Windows')) os = 'Windows';
-  else if (userAgent.includes('Mac')) os = 'macOS';
-  else if (userAgent.includes('Linux')) os = 'Linux';
-  else if (userAgent.includes('Android')) os = 'Android';
-  else if (userAgent.includes('iOS')) os = 'iOS';
+  const os = /Windows/.test(userAgent) ? 'Windows' :
+    /Mac/.test(userAgent) ? 'macOS' :
+    /Linux/.test(userAgent) ? 'Linux' :
+    /Android/.test(userAgent) ? 'Android' :
+    /iOS/.test(userAgent) ? 'iOS' : 'Unknown';
   
   return { device, browser, os };
 }
 
-// Helper function to get traffic source from referrer
 function getTrafficSource(referrer: string): string {
-  if (!referrer || referrer === 'direct') return 'direct';
-  if (referrer.includes('google')) return 'organic';
-  if (referrer.includes('facebook') || referrer.includes('twitter') || referrer.includes('linkedin')) return 'social';
-  if (referrer.includes('email') || referrer.includes('newsletter')) return 'email';
+  if (!referrer) return 'direct';
+  if (referrer.includes('google.com')) return 'organic';
+  if (referrer.includes('facebook.com') || referrer.includes('twitter.com') || 
+      referrer.includes('linkedin.com') || referrer.includes('instagram.com')) return 'social';
   return 'referral';
-}
-
-// Utility functions
-function getClientIP(request: NextRequest): string {
-  return request.headers.get('x-forwarded-for') || 
-         request.headers.get('x-real-ip') || 
-         'unknown';
 }
 
 // GET endpoint - retrieve analytics summary
 export async function GET() {
   try {
-    // Core metrics
+    // Try to fetch real GA4 data first
+    const ga4Data = await fetchGA4Analytics();
+    const ga4DailyStats = await fetchGA4DailyStats();
+    const ga4PageData = await fetchGA4PagePerformance();
+
+    if (ga4Data) {
+      console.log('✅ Using real GA4 data for analytics dashboard');
+      
+      // Use real GA4 data
+      const summary: AnalyticsSummary = {
+        totalPageViews: ga4Data.totalPageViews,
+        uniqueVisitors: ga4Data.uniqueVisitors,
+        totalSessions: ga4Data.totalSessions,
+        
+        userBehavior: ga4Data.userBehavior,
+        trafficSources: ga4Data.trafficSources,
+        deviceBreakdown: ga4Data.deviceBreakdown,
+        topBrowsers: ga4Data.topBrowsers,
+        topCountries: ga4Data.topCountries,
+        topCities: ga4Data.topCities,
+        
+        // Use GA4 daily stats or fallback to custom
+        dailyStats: ga4DailyStats || [],
+        
+        // Use GA4 page data or fallback
+        topPages: ga4PageData || [],
+        
+        // Mock hourly pattern - this would need a more complex GA4 query
+        hourlyPattern: Array.from({ length: 24 }, (_, hour) => {
+          const hourVisitors = Math.floor(Math.random() * 20) + 1;
+          let activity: 'low' | 'medium' | 'high' = 'low';
+          if (hour >= 9 && hour <= 17) activity = 'high';
+          else if (hour >= 6 && hour <= 22) activity = 'medium';
+          
+          return { hour, visitors: hourVisitors, activity };
+        }),
+        
+        // Minimal lead data (would be tracked separately)
+        totalLeads: 0,
+        conversionRate: 0,
+        topProjectTypes: [],
+      };
+
+      return NextResponse.json({ 
+        success: true, 
+        data: summary,
+        source: 'ga4'
+      }, { status: 200 });
+    }
+
+    // Fallback to custom analytics with demo data
+    console.log('⚠️ GA4 not configured, using custom analytics with demo data');
+    
+    // Core metrics from custom data
     const totalPageViews = analyticsEvents.filter(e => e.type === 'page_view').length;
     const uniqueVisitors = analyticsSessions.length;
-    const totalSessions = analyticsSessions.length; // For now, treating sessions = visitors
+    const totalSessions = analyticsSessions.length;
     
     // User behavior calculations
     const avgPagesPerSession = totalSessions > 0 ? totalPageViews / totalSessions : 0;
@@ -114,7 +166,7 @@ export async function GET() {
         source,
         visitors,
         percentage: totalSessions > 0 ? (visitors / totalSessions) * 100 : 0,
-        bounceRate: 45 // Mock data - would calculate from actual sessions
+        bounceRate: 45 // Mock data
       }))
       .sort((a, b) => b.visitors - a.visitors);
 
@@ -127,7 +179,7 @@ export async function GET() {
       ];
     }
 
-    // Mock geographic data (in production, you'd use IP geolocation)
+    // Mock geographic data
     const topCountries = [
       { country: 'United States', visitors: Math.max(uniqueVisitors * 0.4, 2), percentage: 40 },
       { country: 'Canada', visitors: Math.max(uniqueVisitors * 0.2, 1), percentage: 20 },
@@ -147,9 +199,9 @@ export async function GET() {
       .map(([page, views]) => ({
         page,
         views,
-        avgTimeOnPage: 120, // Mock data - would calculate from session duration
-        bounceRate: 35, // Mock data
-        exitRate: 25 // Mock data
+        avgTimeOnPage: 120,
+        bounceRate: 35,
+        exitRate: 25
       }))
       .sort((a, b) => b.views - a.views)
       .slice(0, 5);
@@ -179,22 +231,18 @@ export async function GET() {
         pageViews: dayEvents.filter(e => e.type === 'page_view').length,
         visitors: daySessions.length,
         sessions: daySessions.length,
-        avgSessionDuration: 150 // Mock data - would calculate from actual session times
+        avgSessionDuration: 150
       };
     });
 
-    // Hourly pattern (mock data for demonstration)
+    // Hourly pattern (mock data)
     const hourlyPattern = Array.from({ length: 24 }, (_, hour) => {
       const hourVisitors = Math.floor(Math.random() * 20) + 1;
       let activity: 'low' | 'medium' | 'high' = 'low';
-      if (hour >= 9 && hour <= 17) activity = 'high'; // Business hours
+      if (hour >= 9 && hour <= 17) activity = 'high';
       else if (hour >= 6 && hour <= 22) activity = 'medium';
       
-      return {
-        hour,
-        visitors: hourVisitors,
-        activity
-      };
+      return { hour, visitors: hourVisitors, activity };
     });
 
     // Lead data (minimal)
@@ -213,7 +261,7 @@ export async function GET() {
       
       // User behavior insights
       userBehavior: {
-        avgSessionDuration: 145, // Mock data - in seconds
+        avgSessionDuration: 145,
         avgPagesPerSession: Math.max(avgPagesPerSession, 1.2),
         newVisitorsPercentage: 75,
         returningVisitorsPercentage: 25,
@@ -230,7 +278,7 @@ export async function GET() {
       
       // Geographic insights
       topCountries,
-      topCities: [], // Would implement with detailed geolocation
+      topCities: [],
       
       // Time-based analytics
       dailyStats,
@@ -250,7 +298,11 @@ export async function GET() {
       }, [])
     };
 
-    return NextResponse.json({ success: true, data: summary }, { status: 200 });
+    return NextResponse.json({ 
+      success: true, 
+      data: summary,
+      source: 'custom'
+    }, { status: 200 });
   } catch (error) {
     console.error('Error fetching analytics:', error);
     return NextResponse.json(
@@ -260,76 +312,49 @@ export async function GET() {
   }
 }
 
-// POST endpoint - track analytics events
-export async function POST(request: NextRequest) {
+// POST endpoint - record analytics event
+export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { type, sessionId, data } = body;
+    const { type, data } = body;
 
-    if (!type || !sessionId) {
-      return NextResponse.json(
-        { error: 'Missing required fields: type, sessionId' },
-        { status: 400 }
-      );
-    }
-
-    // Create new event
-    const newEvent: AnalyticsEvent = {
-      id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    // Create analytics event
+    const event: AnalyticsEvent = {
+      id: Date.now().toString(),
       type,
       timestamp: new Date().toISOString(),
-      sessionId,
-      data: {
-        ...data,
-        userAgent: request.headers.get('user-agent') || undefined,
-        ip: getClientIP(request)
-      }
+      sessionId: `session_${Date.now()}`, // Add required sessionId
+      data,
     };
 
-    // Add event to memory
-    analyticsEvents.push(newEvent);
+    // Store event
+    analyticsEvents.push(event);
 
-    // Keep only recent events to prevent memory issues (last 1000 events)
-    if (analyticsEvents.length > 1000) {
-      analyticsEvents = analyticsEvents.slice(-1000);
-    }
+    // For page views, also track session data
+    if (type === 'page_view') {
+      const userAgent = request.headers.get('user-agent') || '';
+      const referrer = request.headers.get('referer') || '';
+      const ipAddress = request.headers.get('x-forwarded-for') || 
+                       request.headers.get('x-real-ip') || 
+                       'unknown';
 
-    // Update or create session
-    let session = analyticsSessions.find(s => s.id === sessionId);
-    if (!session) {
-      session = {
+      // Simple session tracking (in production, use proper session management)
+      const sessionId = `session_${Date.now()}`;
+      analyticsSessions.push({
         id: sessionId,
         startTime: new Date().toISOString(),
-        lastActivity: new Date().toISOString(),
-        pageViews: type === 'page_view' ? 1 : 0,
-        events: [newEvent.id],
-        userAgent: request.headers.get('user-agent') || '',
-        referrer: data.referrer || '',
-        ip: getClientIP(request)
-      };
-      analyticsSessions.push(session);
-    } else {
-      session.lastActivity = new Date().toISOString();
-      if (type === 'page_view') {
-        session.pageViews += 1;
-      }
-      session.events.push(newEvent.id);
+        pageViews: 1,
+        userAgent,
+        referrer,
+        ipAddress,
+      });
     }
 
-    // Keep only recent sessions to prevent memory issues (last 100 sessions)
-    if (analyticsSessions.length > 100) {
-      analyticsSessions = analyticsSessions.slice(-100);
-    }
-
-    return NextResponse.json(
-      { success: true, eventId: newEvent.id },
-      { status: 201 }
-    );
-
+    return NextResponse.json({ success: true, eventId: event.id }, { status: 200 });
   } catch (error) {
-    console.error('Error tracking analytics:', error);
+    console.error('Error recording analytics event:', error);
     return NextResponse.json(
-      { error: 'Failed to track analytics' },
+      { error: 'Failed to record event' },
       { status: 500 }
     );
   }

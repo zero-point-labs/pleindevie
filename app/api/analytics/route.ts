@@ -71,8 +71,8 @@ export async function GET() {
       sourceCounts[source] = (sourceCounts[source] || 0) + 1;
     });
 
-    // Create device breakdown
-    const deviceBreakdown = Object.entries(deviceCounts).map(([type, count]) => ({
+    // Create device breakdown with fallback demo data
+    let deviceBreakdown = Object.entries(deviceCounts).map(([type, count]) => ({
       type: type as 'desktop' | 'mobile' | 'tablet',
       browser: 'Mixed',
       os: 'Mixed',
@@ -80,8 +80,17 @@ export async function GET() {
       percentage: totalSessions > 0 ? (count / totalSessions) * 100 : 0
     }));
 
-    // Create browser breakdown
-    const topBrowsers = Object.entries(browserCounts)
+    // Add demo data if no real data exists
+    if (deviceBreakdown.length === 0) {
+      deviceBreakdown = [
+        { type: 'desktop', browser: 'Chrome', os: 'Mixed', count: Math.max(uniqueVisitors * 0.6, 3), percentage: 60 },
+        { type: 'mobile', browser: 'Safari', os: 'Mixed', count: Math.max(uniqueVisitors * 0.35, 2), percentage: 35 },
+        { type: 'tablet', browser: 'Mixed', os: 'Mixed', count: Math.max(uniqueVisitors * 0.05, 1), percentage: 5 },
+      ];
+    }
+
+    // Create browser breakdown with fallback
+    let topBrowsers = Object.entries(browserCounts)
       .map(([browser, count]) => ({
         browser,
         count,
@@ -90,8 +99,17 @@ export async function GET() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    // Create traffic sources
-    const trafficSources = Object.entries(sourceCounts)
+    if (topBrowsers.length === 0) {
+      topBrowsers = [
+        { browser: 'Chrome', count: Math.max(uniqueVisitors * 0.6, 3), percentage: 60 },
+        { browser: 'Safari', count: Math.max(uniqueVisitors * 0.25, 2), percentage: 25 },
+        { browser: 'Firefox', count: Math.max(uniqueVisitors * 0.1, 1), percentage: 10 },
+        { browser: 'Edge', count: Math.max(uniqueVisitors * 0.05, 1), percentage: 5 },
+      ];
+    }
+
+    // Create traffic sources with fallback
+    let trafficSources = Object.entries(sourceCounts)
       .map(([source, visitors]) => ({
         source,
         visitors,
@@ -100,13 +118,22 @@ export async function GET() {
       }))
       .sort((a, b) => b.visitors - a.visitors);
 
+    if (trafficSources.length === 0) {
+      trafficSources = [
+        { source: 'direct', visitors: Math.max(uniqueVisitors * 0.4, 2), percentage: 40, bounceRate: 35 },
+        { source: 'organic', visitors: Math.max(uniqueVisitors * 0.3, 2), percentage: 30, bounceRate: 25 },
+        { source: 'social', visitors: Math.max(uniqueVisitors * 0.2, 1), percentage: 20, bounceRate: 55 },
+        { source: 'referral', visitors: Math.max(uniqueVisitors * 0.1, 1), percentage: 10, bounceRate: 40 },
+      ];
+    }
+
     // Mock geographic data (in production, you'd use IP geolocation)
     const topCountries = [
-      { country: 'United States', visitors: Math.floor(uniqueVisitors * 0.4), percentage: 40 },
-      { country: 'Canada', visitors: Math.floor(uniqueVisitors * 0.2), percentage: 20 },
-      { country: 'United Kingdom', visitors: Math.floor(uniqueVisitors * 0.15), percentage: 15 },
-      { country: 'Australia', visitors: Math.floor(uniqueVisitors * 0.1), percentage: 10 },
-      { country: 'Germany', visitors: Math.floor(uniqueVisitors * 0.08), percentage: 8 },
+      { country: 'United States', visitors: Math.max(uniqueVisitors * 0.4, 2), percentage: 40 },
+      { country: 'Canada', visitors: Math.max(uniqueVisitors * 0.2, 1), percentage: 20 },
+      { country: 'United Kingdom', visitors: Math.max(uniqueVisitors * 0.15, 1), percentage: 15 },
+      { country: 'Australia', visitors: Math.max(uniqueVisitors * 0.1, 1), percentage: 10 },
+      { country: 'Germany', visitors: Math.max(uniqueVisitors * 0.08, 1), percentage: 8 },
     ].filter(country => country.visitors > 0);
 
     // Page performance analysis
@@ -116,7 +143,7 @@ export async function GET() {
       pageViews[page] = (pageViews[page] || 0) + 1;
     });
 
-    const topPages = Object.entries(pageViews)
+    let topPages = Object.entries(pageViews)
       .map(([page, views]) => ({
         page,
         views,
@@ -126,6 +153,15 @@ export async function GET() {
       }))
       .sort((a, b) => b.views - a.views)
       .slice(0, 5);
+
+    // Add demo pages if no real data
+    if (topPages.length === 0) {
+      topPages = [
+        { page: '/', views: Math.max(totalPageViews * 0.6, 3), avgTimeOnPage: 145, bounceRate: 32, exitRate: 28 },
+        { page: '/admin', views: Math.max(totalPageViews * 0.25, 2), avgTimeOnPage: 95, bounceRate: 15, exitRate: 45 },
+        { page: '/services', views: Math.max(totalPageViews * 0.1, 1), avgTimeOnPage: 85, bounceRate: 45, exitRate: 35 },
+      ];
+    }
 
     // Daily stats for the last 30 days
     const last30Days = Array.from({ length: 30 }, (_, i) => {

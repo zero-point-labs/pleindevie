@@ -56,7 +56,7 @@ async function readLeads(): Promise<Lead[]> {
         
         console.log(`Loaded ${fileLeads.length} leads from file`);
         return fileLeads;
-      } catch (fileError) {
+      } catch {
         console.log('File not found, creating new one');
         // File doesn't exist or can't be read, create it with empty array
         await fs.writeFile(LEADS_FILE_PATH, JSON.stringify([], null, 2));
@@ -127,7 +127,7 @@ async function writeLeads(leads: Lead[]): Promise<void> {
         await fs.mkdir(dataDir, { recursive: true });
         await fs.writeFile(LEADS_FILE_PATH, JSON.stringify(leads, null, 2));
         console.log('Leads written to file successfully');
-      } catch (fileError) {
+      } catch {
         console.log('File write failed (expected in Vercel), using memory storage');
       }
     }

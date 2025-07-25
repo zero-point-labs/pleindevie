@@ -31,8 +31,8 @@ const initGA4 = () => {
     // Initialize GA4 if not already done
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      window.gtag = function() {
-        window.dataLayer.push(arguments);
+      window.gtag = function(...args: unknown[]) {
+        window.dataLayer.push(args);
       };
       window.gtag('js', new Date());
       window.gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
@@ -44,7 +44,7 @@ const initGA4 = () => {
   }
 };
 
-const trackGA4Event = (eventName: string, parameters: Record<string, any> = {}) => {
+const trackGA4Event = (eventName: string, parameters: Record<string, unknown> = {}) => {
   if (typeof window !== 'undefined' && window.gtag && process.env.NEXT_PUBLIC_GA_ID) {
     window.gtag('event', eventName, {
       ...parameters,
@@ -208,7 +208,7 @@ export function useAnalytics(): UseAnalyticsReturn {
 // Extend Window interface for TypeScript
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void;
-    dataLayer: any[];
+    gtag: (...args: unknown[]) => void;
+    dataLayer: unknown[];
   }
 } 

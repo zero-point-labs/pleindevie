@@ -267,7 +267,7 @@ export default function Analytics() {
             </h3>
             <div className="space-y-4">
               {analytics?.deviceBreakdown?.length ? (
-                analytics.deviceBreakdown.slice(0, 4).map((device, index) => (
+                analytics.deviceBreakdown.slice(0, 4).map((device) => (
                   <div key={device.type} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-lg">

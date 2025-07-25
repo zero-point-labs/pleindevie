@@ -44,12 +44,6 @@ function getClientIP(request: NextRequest): string {
          'unknown';
 }
 
-function isThisMonth(dateString: string): boolean {
-  const date = new Date(dateString);
-  const now = new Date();
-  return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-}
-
 // GET endpoint - retrieve analytics summary
 export async function GET() {
   try {
@@ -209,7 +203,7 @@ export async function GET() {
       // Minimal lead data
       totalLeads,
       conversionRate: Math.round(conversionRate * 100) / 100,
-      topProjectTypes: mockLeads.reduce((acc: any[], lead) => {
+      topProjectTypes: mockLeads.reduce((acc: Array<{ type: string; count: number }>, lead) => {
         const existing = acc.find(item => item.type === lead.projectType);
         if (existing) {
           existing.count++;

@@ -91,7 +91,7 @@ export interface AnalyticsEvent {
       width: number;
       height: number;
     };
-    // Lead-specific data
+    // Lead-specific data (minimal)
     projectType?: string;
     budget?: string;
     timeline?: string;
@@ -109,28 +109,96 @@ export interface AnalyticsSession {
   ip?: string;
 }
 
+// Enhanced analytics for demographics and behavior
+export interface DeviceInfo {
+  type: 'desktop' | 'mobile' | 'tablet';
+  browser: string;
+  os: string;
+  count: number;
+  percentage: number;
+}
+
+export interface TrafficSource {
+  source: string;
+  visitors: number;
+  percentage: number;
+  bounceRate: number;
+}
+
+export interface GeographicData {
+  country: string;
+  city?: string;
+  visitors: number;
+  percentage: number;
+}
+
+export interface PagePerformance {
+  page: string;
+  views: number;
+  avgTimeOnPage: number;
+  bounceRate: number;
+  exitRate: number;
+}
+
+export interface UserBehavior {
+  avgSessionDuration: number;
+  avgPagesPerSession: number;
+  newVisitorsPercentage: number;
+  returningVisitorsPercentage: number;
+  bounceRate: number;
+}
+
+export interface RealTimeData {
+  activeUsers: number;
+  topPages: Array<{ page: string; users: number }>;
+  topCountries: Array<{ country: string; users: number }>;
+  recentEvents: Array<{ event: string; timestamp: string; page: string }>;
+}
+
 export interface AnalyticsSummary {
+  // Core metrics
   totalPageViews: number;
   uniqueVisitors: number;
-  totalLeads: number;
-  conversionRate: number;
-  thisMonth: {
-    pageViews: number;
-    leads: number;
-    visitors: number;
-  };
-  topProjectTypes: Array<{
-    type: string;
-    count: number;
-  }>;
-  topBudgets: Array<{
-    budget: string;
-    count: number;
-  }>;
+  totalSessions: number;
+  
+  // User behavior insights
+  userBehavior: UserBehavior;
+  
+  // Traffic analysis
+  trafficSources: TrafficSource[];
+  topPages: PagePerformance[];
+  
+  // Demographics & technology
+  deviceBreakdown: DeviceInfo[];
+  topBrowsers: Array<{ browser: string; count: number; percentage: number }>;
+  
+  // Geographic insights
+  topCountries: GeographicData[];
+  topCities: GeographicData[];
+  
+  // Time-based analytics
   dailyStats: Array<{
     date: string;
     pageViews: number;
-    leads: number;
     visitors: number;
+    sessions: number;
+    avgSessionDuration: number;
+  }>;
+  
+  hourlyPattern: Array<{
+    hour: number;
+    visitors: number;
+    activity: 'low' | 'medium' | 'high';
+  }>;
+  
+  // Real-time data
+  realTime?: RealTimeData;
+  
+  // Minimal lead data (kept simple)
+  totalLeads: number;
+  conversionRate: number;
+  topProjectTypes?: Array<{
+    type: string;
+    count: number;
   }>;
 }

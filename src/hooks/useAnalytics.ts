@@ -39,6 +39,8 @@ const initGA4 = () => {
         // Configure for privacy and performance
         anonymize_ip: true,
         cookie_flags: 'SameSite=None;Secure',
+        // Disable automatic page view tracking since we do it manually
+        send_page_view: false,
       });
     }
   }
@@ -85,10 +87,10 @@ export function useAnalytics(): UseAnalyticsReturn {
     const consent = localStorage.getItem('analytics_consent');
     if (consent === 'declined') return;
 
-    // Prevent duplicate tracking within 2 seconds for the same event type
+    // Prevent duplicate tracking within 5 seconds for the same event type
     const eventKey = `${type}_${data.section || data.page || ''}`;
     const now = Date.now();
-    if (lastTrackTime.current[eventKey] && now - lastTrackTime.current[eventKey] < 2000) {
+    if (lastTrackTime.current[eventKey] && now - lastTrackTime.current[eventKey] < 5000) {
       return;
     }
     lastTrackTime.current[eventKey] = now;
@@ -100,9 +102,23 @@ export function useAnalytics(): UseAnalyticsReturn {
         viewport: getViewportSize()
       };
 
-      // Track to both custom analytics and GA4
-      await Promise.all([
-        // Custom analytics (existing)
+      // Prioritize Google Analytics 4 tracking
+      trackGA4Event(type, {
+        event_category: getEventCategory(type),
+        event_label: data.section || data.buttonText || '',
+        custom_parameter_project_type: data.projectType,
+        custom_parameter_budget: data.budget,
+        custom_parameter_timeline: data.timeline,
+        session_id: sessionIdRef.current,
+        page_path: data.page || (typeof window !== 'undefined' ? window.location.pathname : '/'),
+      });
+
+      // Only track to custom analytics for important events when GA4 is not available
+      // This reduces server load and API calls
+      const shouldTrackCustom = !process.env.NEXT_PUBLIC_GA_ID || ['lead_form_submit', 'page_view'].includes(type);
+      
+      if (shouldTrackCustom) {
+        // Custom analytics (fallback/backup) - non-blocking
         fetch('/api/analytics', {
           method: 'POST',
           headers: {
@@ -113,19 +129,11 @@ export function useAnalytics(): UseAnalyticsReturn {
             sessionId: sessionIdRef.current,
             data: eventData
           })
-        }),
-        
-        // Google Analytics 4 (new)
-        Promise.resolve(trackGA4Event(type, {
-          event_category: getEventCategory(type),
-          event_label: data.section || data.buttonText || '',
-          custom_parameter_project_type: data.projectType,
-          custom_parameter_budget: data.budget,
-          custom_parameter_timeline: data.timeline,
-          session_id: sessionIdRef.current,
-          page_path: data.page || (typeof window !== 'undefined' ? window.location.pathname : '/'),
-        }))
-      ]);
+        }).catch(error => {
+          // Silently handle errors to prevent disrupting user experience
+          console.warn('Custom analytics tracking failed:', error);
+        });
+      }
     } catch (error) {
       console.error('Failed to track analytics event:', error);
     }
@@ -161,12 +169,15 @@ export function useAnalytics(): UseAnalyticsReturn {
     }
     sessionIdRef.current = sessionId;
 
-    // Track initial page view to both systems
+    // Track initial page view
     const trackInitialPageView = async () => {
       const currentPage = typeof window !== 'undefined' ? window.location.pathname : '/';
-      await trackEvent('page_view', { page: currentPage });
-      // Also track to GA4 directly
+      
+      // Always track to GA4 first
       trackGA4PageView(currentPage);
+      
+      // Track to custom analytics as well (for admin dashboard)
+      await trackEvent('page_view', { page: currentPage });
     };
     
     trackInitialPageView();
@@ -174,8 +185,12 @@ export function useAnalytics(): UseAnalyticsReturn {
 
   const trackPageView = async (page?: string): Promise<void> => {
     const currentPage = page || (typeof window !== 'undefined' ? window.location.pathname : '/');
-    await trackEvent('page_view', { page: currentPage });
+    
+    // Track to GA4 first
     trackGA4PageView(currentPage);
+    
+    // Then track to custom analytics
+    await trackEvent('page_view', { page: currentPage });
   };
 
   const trackFormView = async (): Promise<void> => {
@@ -183,6 +198,7 @@ export function useAnalytics(): UseAnalyticsReturn {
   };
 
   const trackFormSubmit = async (data?: TrackEventData): Promise<void> => {
+    // Form submissions are critical - always track to both systems
     await trackEvent('lead_form_submit', data);
   };
 

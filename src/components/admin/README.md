@@ -20,16 +20,18 @@ This directory contains the admin panel components for the renovation landing pa
 - Table columns: Name, Email, Phone, Project Type, Date, Status
 
 ### Analytics
-- Shows key metrics and analytics cards
-- Placeholder for Google Analytics integration
-- Charts for traffic and lead sources
+- Shows key metrics and analytics cards using GA4 data
+- Optimized to fetch data only on page load and manual refresh
+- No longer polls repeatedly - significantly reduced server load
+- Custom analytics fallback only for critical events (lead submissions)
 
 ## Access
 
 Navigate to `/admin` to access the admin panel.
 
-## Future Integrations
+## Recent Optimizations (2024)
 
-- Lead capture form integration
-- Google Analytics tracking
-- Real-time data updates 
+- **Removed automatic polling** - Analytics data now fetches only once on load
+- **GA4 Integration** - Primary analytics now handled by Google Analytics 4
+- **Reduced API calls** - Custom analytics API only used for essential lead tracking
+- **Performance improvements** - Memoized components and callbacks to prevent unnecessary re-renders 

@@ -4,8 +4,8 @@ import { fetchGA4Analytics, fetchGA4DailyStats, fetchGA4PagePerformance } from '
 
 // In-memory storage for demo purposes
 // In production, you'd use a proper database
-let analyticsEvents: AnalyticsEvent[] = [];
-let analyticsSessions: Array<{
+const analyticsEvents: AnalyticsEvent[] = [];
+const analyticsSessions: Array<{
   id: string;
   startTime: string;
   endTime?: string;
@@ -44,9 +44,11 @@ function getTrafficSource(referrer: string): string {
 }
 
 // GET endpoint - retrieve analytics summary
+// OPTIMIZATION: This endpoint is now called only on admin page load and manual refresh
+// Previous issue: Was being called repeatedly due to component re-renders
 export async function GET() {
   try {
-    // Try to fetch real GA4 data first
+    // Try to fetch real GA4 data first (primary data source)
     const ga4Data = await fetchGA4Analytics();
     const ga4DailyStats = await fetchGA4DailyStats();
     const ga4PageData = await fetchGA4PagePerformance();
@@ -313,6 +315,8 @@ export async function GET() {
 }
 
 // POST endpoint - record analytics event
+// OPTIMIZATION: Now only receives critical events (lead submissions)
+// Page views and other events are handled by GA4 for better performance
 export async function POST(request: Request) {
   try {
     const body = await request.json();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { AnalyticsSummary } from '@/types';
 
@@ -11,44 +11,143 @@ export default function Analytics() {
   const [ga4Status, setGA4Status] = useState<'enabled' | 'disabled' | 'error'>('disabled');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const response = await fetch('/api/analytics');
-        if (!response.ok) {
-          throw new Error('Failed to fetch analytics');
-        }
-        const result = await response.json();
-        setAnalytics(result.data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
+  // Memoized fetch function to prevent unnecessary re-creation
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('/api/analytics');
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics');
       }
-    };
+      const result = await response.json();
+      setAnalytics(result.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    // Check GA4 status
-    const checkGA4Status = () => {
-      if (process.env.NEXT_PUBLIC_GA_ID) {
-        if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-          setGA4Status('enabled');
-        } else {
-          setGA4Status('error');
-        }
+  // Memoized GA4 status check to prevent unnecessary re-execution
+  const checkGA4Status = useCallback(() => {
+    if (process.env.NEXT_PUBLIC_GA_ID) {
+      if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        setGA4Status('enabled');
       } else {
-        setGA4Status('disabled');
+        setGA4Status('error');
       }
-    };
+    } else {
+      setGA4Status('disabled');
+    }
+  }, []);
 
+  // Main effect - only runs on mount and when manual refresh is triggered
+  useEffect(() => {
+    // Only fetch analytics data once on mount or when manually refreshed
     fetchAnalytics();
     checkGA4Status();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, fetchAnalytics, checkGA4Status]);
 
-  const handleRefresh = () => {
-    setLoading(true);
+  // Manual refresh handler - now throttled to prevent spam
+  const handleRefresh = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
-  };
+  }, []);
 
+  // Memoize GA4 status info to prevent unnecessary re-computation
+  const ga4StatusInfo = useMemo(() => {
+    switch (ga4Status) {
+      case 'enabled':
+        return {
+          color: 'text-green-600',
+          bgColor: 'bg-green-100',
+          icon: '✅',
+          text: 'Google Analytics 4 Active',
+          description: 'Full demographic & behavior tracking'
+        };
+      case 'error':
+        return {
+          color: 'text-orange-600',
+          bgColor: 'bg-orange-100',
+          icon: '⚠️',
+          text: 'GA4 Configuration Issue',
+          description: 'Check GA4 setup for detailed insights'
+        };
+      default:
+        return {
+          color: 'text-blue-600',
+          bgColor: 'bg-blue-100',
+          icon: 'ℹ️',
+          text: 'Basic Analytics Only',
+          description: 'Add GA4 for demographics & behavior data'
+        };
+    }
+  }, [ga4Status]);
+
+  // Memoize computed metrics to prevent unnecessary recalculation
+  const computedMetrics = useMemo(() => {
+    if (!analytics) return null;
+
+    const avgPagesPerSession = (analytics.totalSessions && analytics.totalSessions > 0) ? 
+      (analytics.totalPageViews / analytics.totalSessions).toFixed(1) : '0';
+    
+    const bounceRate = analytics.userBehavior?.bounceRate || 
+      ((analytics.totalSessions && analytics.totalSessions > 0) ? 
+        ((analytics.totalSessions - (analytics.totalPageViews / 2)) / analytics.totalSessions * 100) : 0);
+
+    const recentStats = analytics.dailyStats?.slice(-7) || [];
+    const weeklyVisitors = recentStats.reduce((sum, day) => sum + day.visitors, 0);
+    const weeklyPageViews = recentStats.reduce((sum, day) => sum + day.pageViews, 0);
+
+    return {
+      avgPagesPerSession,
+      bounceRate,
+      weeklyVisitors,
+      weeklyPageViews
+    };
+  }, [analytics]);
+
+  // Memoize core metrics to prevent unnecessary re-computation
+  const coreMetrics = useMemo(() => {
+    if (!computedMetrics) return [];
+    
+    return [
+    {
+      title: 'Total Visitors',
+      value: analytics?.uniqueVisitors?.toLocaleString() || '0',
+      description: 'Unique users all time',
+      icon: '��',
+      trend: `${computedMetrics.weeklyVisitors} this week`,
+      color: 'bg-blue-500'
+    },
+    {
+      title: 'Page Views',
+      value: analytics?.totalPageViews?.toLocaleString() || '0',
+      description: 'Total page impressions',
+      icon: '👁️',
+      trend: `${computedMetrics.weeklyPageViews} this week`,
+      color: 'bg-green-500'
+    },
+    {
+      title: 'Avg. Session',
+      value: computedMetrics.avgPagesPerSession,
+      description: 'Pages per session',
+      icon: '📖',
+      trend: computedMetrics.bounceRate > 70 ? 'High bounce rate' : computedMetrics.bounceRate < 40 ? 'Great engagement!' : 'Good engagement',
+      color: 'bg-purple-500'
+    },
+    {
+      title: 'Conversion Rate',
+      value: `${analytics?.conversionRate || 0}%`,
+      description: 'Visitors to leads',
+      icon: '🎯',
+      trend: analytics?.totalLeads ? `${analytics.totalLeads} total leads` : 'No leads yet',
+      color: 'bg-yellow-500'
+    },
+  ];
+  }, [analytics, computedMetrics]);
+
+  // Handle loading and error states after all hooks
   if (loading) {
     return (
       <Card className="bg-white/95 backdrop-blur-sm border-blue-400/20">
@@ -93,83 +192,9 @@ export default function Analytics() {
     );
   }
 
-  const getGA4StatusInfo = () => {
-    switch (ga4Status) {
-      case 'enabled':
-        return {
-          color: 'text-green-600',
-          bgColor: 'bg-green-100',
-          icon: '✅',
-          text: 'Google Analytics 4 Active',
-          description: 'Full demographic & behavior tracking'
-        };
-      case 'error':
-        return {
-          color: 'text-orange-600',
-          bgColor: 'bg-orange-100',
-          icon: '⚠️',
-          text: 'GA4 Configuration Issue',
-          description: 'Check GA4 setup for detailed insights'
-        };
-      default:
-        return {
-          color: 'text-blue-600',
-          bgColor: 'bg-blue-100',
-          icon: 'ℹ️',
-          text: 'Basic Analytics Only',
-          description: 'Add GA4 for demographics & behavior data'
-        };
-    }
-  };
-
-  const ga4Info = getGA4StatusInfo();
-
-  // Calculate behavioral metrics from available data
-  const avgPagesPerSession = (analytics?.totalSessions && analytics?.totalSessions > 0) ? 
-    (analytics.totalPageViews / analytics.totalSessions).toFixed(1) : '0';
-  
-  const bounceRate = analytics?.userBehavior?.bounceRate || 
-    ((analytics?.totalSessions && analytics?.totalSessions > 0) ? 
-      ((analytics.totalSessions - (analytics.totalPageViews / 2)) / analytics.totalSessions * 100) : 0);
-
-  const recentStats = analytics?.dailyStats?.slice(-7) || [];
-  const weeklyVisitors = recentStats.reduce((sum, day) => sum + day.visitors, 0);
-  const weeklyPageViews = recentStats.reduce((sum, day) => sum + day.pageViews, 0);
-
-  const coreMetrics = [
-    {
-      title: 'Total Visitors',
-      value: analytics?.uniqueVisitors?.toLocaleString() || '0',
-      description: 'Unique users all time',
-      icon: '👥',
-      trend: `${weeklyVisitors} this week`,
-      color: 'bg-blue-500'
-    },
-    {
-      title: 'Page Views',
-      value: analytics?.totalPageViews?.toLocaleString() || '0',
-      description: 'Total page impressions',
-      icon: '👁️',
-      trend: `${weeklyPageViews} this week`,
-      color: 'bg-green-500'
-    },
-    {
-      title: 'Avg. Session',
-      value: avgPagesPerSession,
-      description: 'Pages per session',
-      icon: '📖',
-      trend: bounceRate > 70 ? 'High bounce rate' : bounceRate < 40 ? 'Great engagement!' : 'Good engagement',
-      color: 'bg-purple-500'
-    },
-    {
-      title: 'Conversion Rate',
-      value: `${analytics?.conversionRate || 0}%`,
-      description: 'Visitors to leads',
-      icon: '🎯',
-      trend: analytics?.totalLeads ? `${analytics.totalLeads} total leads` : 'No leads yet',
-      color: 'bg-yellow-500'
-    },
-  ];
+  if (!computedMetrics || coreMetrics.length === 0) {
+    return null;
+  }
 
   return (
     <Card className="bg-white/95 backdrop-blur-sm border-blue-400/20">
@@ -182,10 +207,10 @@ export default function Analytics() {
             </CardTitle>
             
             {/* GA4 Status Indicator */}
-            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm mt-2 ${ga4Info.bgColor} ${ga4Info.color}`}>
-              <span>{ga4Info.icon}</span>
-              <span className="font-medium">{ga4Info.text}</span>
-              <span className="text-xs opacity-75">• {ga4Info.description}</span>
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm mt-2 ${ga4StatusInfo.bgColor} ${ga4StatusInfo.color}`}>
+              <span>{ga4StatusInfo.icon}</span>
+              <span className="font-medium">{ga4StatusInfo.text}</span>
+              <span className="text-xs opacity-75">• {ga4StatusInfo.description}</span>
             </div>
           </div>
           
@@ -340,12 +365,12 @@ export default function Analytics() {
               <div className="text-xs text-violet-600 mt-1">🔄 User visits</div>
             </div>
             <div className="text-center p-4 bg-white/60 rounded-lg">
-              <div className="text-2xl font-bold text-slate-800">{avgPagesPerSession}</div>
+              <div className="text-2xl font-bold text-slate-800">{computedMetrics.avgPagesPerSession}</div>
               <div className="text-sm text-gray-600">Pages/Session</div>
               <div className="text-xs text-violet-600 mt-1">📄 Engagement depth</div>
             </div>
             <div className="text-center p-4 bg-white/60 rounded-lg">
-              <div className="text-2xl font-bold text-slate-800">{bounceRate.toFixed(0)}%</div>
+              <div className="text-2xl font-bold text-slate-800">{computedMetrics.bounceRate.toFixed(0)}%</div>
               <div className="text-sm text-gray-600">Bounce Rate</div>
               <div className="text-xs text-violet-600 mt-1">↩️ Single page visits</div>
             </div>

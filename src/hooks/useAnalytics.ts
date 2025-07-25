@@ -113,12 +113,14 @@ export function useAnalytics(): UseAnalyticsReturn {
         page_path: data.page || (typeof window !== 'undefined' ? window.location.pathname : '/'),
       });
 
-      // Only track to custom analytics for important events when GA4 is not available
-      // This reduces server load and API calls
-      const shouldTrackCustom = !process.env.NEXT_PUBLIC_GA_ID || ['lead_form_submit', 'page_view'].includes(type);
+      // OPTIMIZATION: Significantly reduced custom analytics calls
+      // Only track critical events to custom analytics to minimize server load
+      // GA4 now handles most tracking, custom analytics only for essential lead tracking
+      const shouldTrackCustom = ['lead_form_submit'].includes(type) && 
+                               (!process.env.NEXT_PUBLIC_GA_ID || process.env.NODE_ENV === 'development');
       
       if (shouldTrackCustom) {
-        // Custom analytics (fallback/backup) - non-blocking
+        // Custom analytics (essential events only) - non-blocking
         fetch('/api/analytics', {
           method: 'POST',
           headers: {
@@ -158,6 +160,9 @@ export function useAnalytics(): UseAnalyticsReturn {
 
   // Initialize GA4 and generate session ID
   useEffect(() => {
+    // Prevent multiple initializations
+    if (sessionIdRef.current) return;
+    
     // Initialize GA4
     initGA4();
 
@@ -169,28 +174,31 @@ export function useAnalytics(): UseAnalyticsReturn {
     }
     sessionIdRef.current = sessionId;
 
-    // Track initial page view
+    // Track initial page view only once
     const trackInitialPageView = async () => {
       const currentPage = typeof window !== 'undefined' ? window.location.pathname : '/';
       
-      // Always track to GA4 first
+      // Always track to GA4 first (primary analytics)
       trackGA4PageView(currentPage);
       
-      // Track to custom analytics as well (for admin dashboard)
-      await trackEvent('page_view', { page: currentPage });
+      // OPTIMIZATION: Skip custom analytics page view tracking to reduce API calls
+      // GA4 handles page views more efficiently, custom analytics only for leads
+      console.log('📊 Page view tracked to GA4:', currentPage);
     };
     
     trackInitialPageView();
-  }, [trackEvent]);
+  }, []); // Removed trackEvent dependency to prevent circular re-initialization
 
   const trackPageView = async (page?: string): Promise<void> => {
     const currentPage = page || (typeof window !== 'undefined' ? window.location.pathname : '/');
     
-    // Track to GA4 first
+    // Track to GA4 (primary analytics system)
     trackGA4PageView(currentPage);
     
-    // Then track to custom analytics
-    await trackEvent('page_view', { page: currentPage });
+    // OPTIMIZATION: Custom analytics only used for development or when GA4 unavailable
+    if (!process.env.NEXT_PUBLIC_GA_ID || process.env.NODE_ENV === 'development') {
+      await trackEvent('page_view', { page: currentPage });
+    }
   };
 
   const trackFormView = async (): Promise<void> => {

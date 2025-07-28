@@ -45,12 +45,12 @@ const CHART_COLORS = {
 };
 
 // Color configuration
-const GRADIENT_COLORS = {
-  blue: ['rgba(59, 130, 246, 0.8)', 'rgba(59, 130, 246, 0.1)'],
-  green: ['rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.1)'],
-  purple: ['rgba(139, 92, 246, 0.8)', 'rgba(139, 92, 246, 0.1)'],
-  orange: ['rgba(245, 158, 11, 0.8)', 'rgba(245, 158, 11, 0.1)'],
-};
+// const GRADIENT_COLORS = {
+//   blue: ['rgba(59, 130, 246, 0.8)', 'rgba(59, 130, 246, 0.1)'],
+//   green: ['rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.1)'],
+//   purple: ['rgba(139, 92, 246, 0.8)', 'rgba(139, 92, 246, 0.1)'],
+//   orange: ['rgba(245, 158, 11, 0.8)', 'rgba(245, 158, 11, 0.1)'],
+// };
 
 interface ChartWrapperProps {
   title: string;

@@ -1,19 +1,4 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "outputDirectory": ".next",
-  "env": {
-    "NEXT_PUBLIC_APPWRITE_ENDPOINT": "@next_public_appwrite_endpoint",
-    "NEXT_PUBLIC_APPWRITE_PROJECT_ID": "@next_public_appwrite_project_id",
-    "NEXT_PUBLIC_APPWRITE_DATABASE_ID": "@next_public_appwrite_database_id",
-    "NEXT_PUBLIC_APPWRITE_LEADS_COLLECTION_ID": "@next_public_appwrite_leads_collection_id",
-    "NEXT_PUBLIC_N8N_WEBHOOK_URL": "@next_public_n8n_webhook_url",
-    "NEXT_PUBLIC_GA_ID": "@next_public_ga_id",
-    "APPWRITE_API_KEY": "@appwrite_api_key",
-    "GA_MEASUREMENT_ID": "@ga_measurement_id",
-    "GA_PROPERTY_ID": "@ga_property_id"
-  },
   "functions": {
     "app/api/**": {
       "maxDuration": 10

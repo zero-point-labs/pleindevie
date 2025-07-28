@@ -5,8 +5,8 @@ declare module '@upstash/redis' {
       token: string;
     });
     
-    set(key: string, value: any): Promise<string>;
-    get(key: string): Promise<any>;
+    set(key: string, value: string | number | boolean | object): Promise<string>;
+    get(key: string): Promise<string | null>;
     del(key: string): Promise<number>;
     exists(key: string): Promise<number>;
     expire(key: string, seconds: number): Promise<number>;
@@ -17,9 +17,9 @@ declare module '@upstash/redis' {
     srem(key: string, ...members: string[]): Promise<number>;
     smembers(key: string): Promise<string[]>;
     sismember(key: string, member: string): Promise<number>;
-    hset(key: string, field: string, value: any): Promise<number>;
-    hget(key: string, field: string): Promise<any>;
-    hgetall(key: string): Promise<Record<string, any>>;
+    hset(key: string, field: string, value: string | number | boolean): Promise<number>;
+    hget(key: string, field: string): Promise<string | null>;
+    hgetall(key: string): Promise<Record<string, string>>;
     hdel(key: string, ...fields: string[]): Promise<number>;
     lpush(key: string, ...elements: string[]): Promise<number>;
     rpush(key: string, ...elements: string[]): Promise<number>;

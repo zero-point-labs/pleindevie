@@ -87,19 +87,19 @@ function LeadDetailsModal({ lead, isOpen, onClose, onStatusUpdate }: LeadDetails
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="p-0 w-[95vw] max-w-4xl max-h-[95vh] overflow-hidden rounded-3xl shadow-2xl">
+      <DialogContent className="p-0 w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl shadow-2xl">
         {/* Modern Header */}
         <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20"></div>
-          <div className="relative p-8">
-            <div className="flex justify-between items-start mb-6">
+          <div className="relative p-6 sm:p-8">
+            <div className="mb-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <span className="text-xl">👤</span>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <span className="text-lg sm:text-xl">👤</span>
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold tracking-tight">{lead.name}</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{lead.name}</h1>
                     <p className="text-blue-200 text-sm font-medium">{lead.email}</p>
                   </div>
                 </div>
@@ -110,32 +110,21 @@ function LeadDetailsModal({ lead, isOpen, onClose, onStatusUpdate }: LeadDetails
                   <span className="text-sm font-semibold">{currentStatus.label}</span>
                 </div>
               </div>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="text-white/70 hover:text-white hover:bg-white/10 rounded-full w-10 h-10 p-0"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </Button>
             </div>
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="p-8 overflow-y-auto max-h-[70vh] bg-gray-50/50">
+        {/* Content Area - Fixed scrolling */}
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-50/50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
           {/* Status Management */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <div className="flex items-center gap-2 mb-4">
               <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h2 className="text-lg font-semibold text-gray-900">Update Status</h2>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {(['new', 'contacted', 'qualified', 'closed'] as const).map((status) => {
                 const config = getStatusConfig(status);
                 const isActive = lead.status === status;
@@ -168,15 +157,15 @@ function LeadDetailsModal({ lead, isOpen, onClose, onStatusUpdate }: LeadDetails
           </div>
 
           {/* Contact Information */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-6">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
               <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <h2 className="text-lg font-semibold text-gray-900">Contact Information</h2>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Email */}
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
@@ -243,15 +232,15 @@ function LeadDetailsModal({ lead, isOpen, onClose, onStatusUpdate }: LeadDetails
           </div>
 
           {/* Project Details */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-6">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
               <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
               <h2 className="text-lg font-semibold text-gray-900">Project Details</h2>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Project Type */}
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
@@ -301,16 +290,16 @@ function LeadDetailsModal({ lead, isOpen, onClose, onStatusUpdate }: LeadDetails
 
           {/* Additional Message */}
           {lead.message && (
-            <div>
+            <div className="mb-4">
               <div className="flex items-center gap-2 mb-4">
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 <h2 className="text-lg font-semibold text-gray-900">Additional Details</h2>
               </div>
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
                 <div className="prose prose-sm max-w-none">
-                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{lead.message}</p>
+                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">{lead.message}</p>
                 </div>
               </div>
             </div>

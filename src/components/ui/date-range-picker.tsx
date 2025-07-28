@@ -99,8 +99,8 @@ const DATE_PRESETS: DatePreset[] = [
 export function DateRangePicker({ value, onChange, className }: DateRangePickerProps) {
   const [isCustom, setIsCustom] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('last30days');
-  const [startDate, setStartDate] = useState(value.startDate);
-  const [endDate, setEndDate] = useState(value.endDate);
+  const [startDate, setStartDate] = useState(value.startDate || format(subDays(new Date(), 29), 'yyyy-MM-dd'));
+  const [endDate, setEndDate] = useState(value.endDate || format(new Date(), 'yyyy-MM-dd'));
 
   // Initialize with default preset (last 30 days)
   useEffect(() => {
@@ -133,6 +133,9 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
     if (presetValue === 'custom') {
       setIsCustom(true);
       setSelectedPreset('custom');
+      // Ensure custom dates are set from current values
+      setStartDate(value.startDate || format(subDays(new Date(), 29), 'yyyy-MM-dd'));
+      setEndDate(value.endDate || format(new Date(), 'yyyy-MM-dd'));
       return;
     }
 
@@ -164,6 +167,8 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
     return `${format(start, 'MMM d, yyyy')} - ${format(end, 'MMM d, yyyy')}`;
   };
 
+
+
   const getDisplayText = () => {
     // If it's a preset, show the preset label
     if (!isCustom && selectedPreset !== 'custom') {
@@ -177,103 +182,81 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
   return (
     <div className={`${className}`}>
       <div className="space-y-3">
-        {/* Beautiful Date Range Button */}
-        <div className="flex items-center gap-4">
+        {/* Simple Date Range Button */}
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-blue-500 rounded-lg">
-              <Calendar className="h-5 w-5 text-white" />
-            </div>
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Date Range</label>
+            <Calendar className="h-5 w-5 text-blue-500" />
+            <span className="text-sm font-medium text-gray-700">Date Range</span>
           </div>
           
           <Select value={selectedPreset} onValueChange={handlePresetChange}>
-            <SelectTrigger className="min-w-[280px] bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 p-4 rounded-xl shadow-sm h-16">
-              <div className="flex items-center justify-between w-full">
-                <div className="text-left">
-                  <div className="font-medium text-gray-900 text-base">
-                    {!isCustom && selectedPreset !== 'custom' 
-                      ? DATE_PRESETS.find(p => p.value === selectedPreset)?.label || 'Select range'
-                      : 'Custom Range'
-                    }
-                  </div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    {formatDateRange()}
-                  </div>
-                </div>
-                <ChevronDown className="h-5 w-5 text-gray-500 ml-3" />
-              </div>
+            <SelectTrigger className="min-w-[200px] w-full max-w-sm bg-white border border-gray-300 hover:border-gray-400 transition-all duration-200 h-10 px-3 text-left">
+              <span className="text-sm text-gray-900">
+                {!isCustom && selectedPreset !== 'custom' 
+                  ? DATE_PRESETS.find(p => p.value === selectedPreset)?.label || 'Last 30 days'
+                  : formatDateRange()
+                }
+              </span>
             </SelectTrigger>
             
-            <SelectContent className="w-80">
+            <SelectContent className="w-72">
               {DATE_PRESETS.map((preset) => (
-                <SelectItem key={preset.value} value={preset.value} className="p-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <Calendar className="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{preset.label}</span>
-                      <span className="text-xs text-gray-500">
-                        {preset.getDateRange().startDate === preset.getDateRange().endDate 
-                          ? format(new Date(preset.getDateRange().startDate), 'MMM d, yyyy')
-                          : `${format(new Date(preset.getDateRange().startDate), 'MMM d')} - ${format(new Date(preset.getDateRange().endDate), 'MMM d, yyyy')}`
-                        }
-                      </span>
-                    </div>
+                <SelectItem key={preset.value} value={preset.value}>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{preset.label}</span>
+                    <span className="text-xs text-gray-500">
+                      {preset.getDateRange().startDate === preset.getDateRange().endDate 
+                        ? format(new Date(preset.getDateRange().startDate), 'MMM d, yyyy')
+                        : `${format(new Date(preset.getDateRange().startDate), 'MMM d')} - ${format(new Date(preset.getDateRange().endDate), 'MMM d, yyyy')}`
+                      }
+                    </span>
                   </div>
                 </SelectItem>
               ))}
-              <SelectItem value="custom" className="p-3">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Calendar className="h-4 w-4 text-purple-600" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-medium">Custom Range</span>
-                    <span className="text-xs text-gray-500">Pick specific dates</span>
-                  </div>
+              <SelectItem value="custom">
+                <div className="flex flex-col">
+                  <span className="font-medium">Custom Range</span>
+                  <span className="text-xs text-gray-500">Pick specific dates</span>
                 </div>
               </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* Custom Date Inputs */}
+        {/* Custom Date Inputs - Updated */}
         {isCustom && (
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="mt-4 p-4 bg-white border border-gray-300 rounded-lg shadow-sm">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Start Date
                 </label>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  max={endDate || format(new Date(), 'yyyy-MM-dd')}
+                  className="w-full h-11 px-3 py-2 border border-gray-300 rounded-md text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  max={endDate}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   End Date
                 </label>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full h-11 px-3 py-2 border border-gray-300 rounded-md text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   min={startDate}
                   max={format(new Date(), 'yyyy-MM-dd')}
                 />
               </div>
             </div>
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-6 flex flex-col gap-3">
               <Button
                 onClick={handleCustomDateChange}
-                size="sm"
-                disabled={!startDate || !endDate}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-blue-500 hover:bg-blue-600 text-white h-11 text-base font-medium"
               >
                 Apply Range
               </Button>
@@ -283,7 +266,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
                   setSelectedPreset('last30days');
                   handlePresetChange('last30days');
                 }}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm text-gray-500 hover:text-gray-700 py-2"
               >
                 Cancel
               </button>

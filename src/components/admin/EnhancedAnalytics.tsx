@@ -259,7 +259,7 @@ export default function EnhancedAnalytics({ className }: EnhancedAnalyticsProps)
   }
 
   return (
-    <div className={`space-y-8 ${className}`}>
+    <div className={`space-y-8 overflow-x-hidden ${className}`}>
       {/* Header with Controls */}
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-blue-400/20 shadow-lg p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -298,11 +298,11 @@ export default function EnhancedAnalytics({ className }: EnhancedAnalyticsProps)
         
         {/* Date Range Picker with Loading State */}
         <div className="mt-6 pt-6 border-t border-gray-200">
-          <div className="relative">
+          <div className="relative overflow-hidden">
             <DateRangePicker
               value={dateRange}
               onChange={handleDateRangeChange}
-              className="max-w-md"
+              className="w-full"
             />
             {dateRangeLoading && (
               <div className="absolute inset-0 bg-white/70 backdrop-blur-sm rounded-lg flex items-center justify-center">

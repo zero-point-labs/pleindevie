@@ -64,6 +64,86 @@ const trackGA4PageView = (page: string) => {
   }
 };
 
+// Helper: inject GA script dynamically
+const loadGaScript = (gaId: string): Promise<void> => {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve();
+
+    // If script already loaded resolve immediately
+    if (document.getElementById('ga-consent-script')) {
+      return resolve();
+    }
+
+    // Create global dataLayer and gtag function if not present
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer.push(arguments);
+    }
+    window.gtag = window.gtag || gtag;
+
+    // Consent mode default – denied until user grants
+    window.gtag('consent', 'default', {
+      ad_storage: 'denied',
+      analytics_storage: 'denied',
+    });
+
+    const script = document.createElement('script');
+    script.id = 'ga-consent-script';
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+    script.onload = () => {
+      resolve();
+    };
+    document.head.appendChild(script);
+  });
+};
+
+// Helper: check if user has granted consent
+const hasGrantedConsent = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('analytics_consent') === 'accepted';
+};
+
+// Helper: Respect Do Not Track header
+const isDNT = (): boolean => {
+  if (typeof navigator === 'undefined') return false;
+  return (
+    navigator.doNotTrack === '1' ||
+    (window as any).doNotTrack === '1' ||
+    (navigator as any).msDoNotTrack === '1'
+  );
+};
+
+// Enable analytics after consent
+const enableAnalytics = async (): Promise<void> => {
+  if (typeof window === 'undefined') return;
+  if (!process.env.NEXT_PUBLIC_GA_ID) return;
+  await loadGaScript(process.env.NEXT_PUBLIC_GA_ID);
+  initGA4();
+  window.gtag('consent', 'update', { analytics_storage: 'granted' });
+  const currentPage = window.location.pathname;
+  trackGA4PageView(currentPage);
+};
+
+// Disable analytics and clear cookies
+const disableAnalytics = (): void => {
+  if (typeof window === 'undefined') return;
+  if (window.gtag) {
+    window.gtag('consent', 'update', { analytics_storage: 'denied' });
+  }
+  // Clear cookies
+  const cookies = document.cookie.split(';');
+  cookies.forEach((cookie) => {
+    const trimmed = cookie.trim();
+    if (trimmed.startsWith('_ga') || trimmed.startsWith('_gid') || trimmed.startsWith('_gac')) {
+      const eqPos = trimmed.indexOf('=');
+      const name = eqPos > -1 ? trimmed.substr(0, eqPos) : trimmed;
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
+    }
+  });
+};
+
 export function useAnalytics(): UseAnalyticsReturn {
   const sessionIdRef = useRef<string>('');
   const lastTrackTime = useRef<{ [key: string]: number }>({});
@@ -85,7 +165,7 @@ export function useAnalytics(): UseAnalyticsReturn {
 
     // Check if user has consented to analytics
     const consent = localStorage.getItem('analytics_consent');
-    if (consent === 'declined') return;
+    if (consent !== 'accepted') return;
 
     // Prevent duplicate tracking within 5 seconds for the same event type
     const eventKey = `${type}_${data.section || data.page || ''}`;
@@ -160,13 +240,9 @@ export function useAnalytics(): UseAnalyticsReturn {
 
   // Initialize GA4 and generate session ID
   useEffect(() => {
-    // Prevent multiple initializations
     if (sessionIdRef.current) return;
-    
-    // Initialize GA4
-    initGA4();
 
-    // Generate or retrieve session ID
+    // Generate or retrieve session ID (independent of analytics consent)
     let sessionId = sessionStorage.getItem('analytics_session_id');
     if (!sessionId) {
       sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -174,20 +250,25 @@ export function useAnalytics(): UseAnalyticsReturn {
     }
     sessionIdRef.current = sessionId;
 
-    // Track initial page view only once
-    const trackInitialPageView = async () => {
-      const currentPage = typeof window !== 'undefined' ? window.location.pathname : '/';
-      
-      // Always track to GA4 first (primary analytics)
-      trackGA4PageView(currentPage);
-      
-      // OPTIMIZATION: Skip custom analytics page view tracking to reduce API calls
-      // GA4 handles page views more efficiently, custom analytics only for leads
-      console.log('📊 Page view tracked to GA4:', currentPage);
+    // Handle initial consent state respecting DNT
+    if (isDNT() || localStorage.getItem('analytics_consent') === 'declined') {
+      disableAnalytics();
+    } else if (hasGrantedConsent()) {
+      enableAnalytics();
+    }
+
+    // Listen for consent change events to enable/disable analytics on the fly
+    const handleConsentChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail as string;
+      if (detail === 'granted') {
+        enableAnalytics();
+      } else {
+        disableAnalytics();
+      }
     };
-    
-    trackInitialPageView();
-  }, []); // Removed trackEvent dependency to prevent circular re-initialization
+    window.addEventListener('analytics-consent', handleConsentChange);
+    return () => window.removeEventListener('analytics-consent', handleConsentChange);
+  }, []);
 
   const trackPageView = async (page?: string): Promise<void> => {
     const currentPage = page || (typeof window !== 'undefined' ? window.location.pathname : '/');

@@ -8,7 +8,11 @@ export function PrivacyNotice() {
 
   useEffect(() => {
     // Respect Do Not Track header – treat as declined
-    const dnt = typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || (window as any).doNotTrack === '1' || (navigator as any).msDoNotTrack === '1');
+    const dnt = typeof navigator !== 'undefined' && (
+      navigator.doNotTrack === '1' || 
+      (window as Window & typeof globalThis & { doNotTrack?: string }).doNotTrack === '1' || 
+      (navigator as Navigator & { msDoNotTrack?: string }).msDoNotTrack === '1'
+    );
 
     if (dnt) {
       localStorage.setItem('analytics_consent', 'declined');

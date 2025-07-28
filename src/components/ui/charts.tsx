@@ -44,6 +44,7 @@ const CHART_COLORS = {
   muted: '#6B7280',
 };
 
+// Color configuration
 const GRADIENT_COLORS = {
   blue: ['rgba(59, 130, 246, 0.8)', 'rgba(59, 130, 246, 0.1)'],
   green: ['rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.1)'],

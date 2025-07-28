@@ -1,5 +1,5 @@
-import { BetaAnalyticsDataClient } from '@google-analytics/data';
-import { DateRange, AnalyticsSummary, RenovationMetrics, PerformanceMetrics } from '@/types';
+import { BetaAnalyticsDataClient, PerformanceMetrics } from '@google-analytics/data';
+import { DateRange, AnalyticsSummary, RenovationMetrics } from '@/types';
 import { format, subDays } from 'date-fns';
 
 // Google Analytics Data API client

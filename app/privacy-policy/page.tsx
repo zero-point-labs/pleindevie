@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold text-slate-800 mt-8 mb-4">3. Cookies</h2>
             <p>
-              Cookies are small data files stored on your device. We use analytics cookies <strong>only</strong> after you accept them. You can withdraw consent at any time via "Cookie settings" in the footer.
+              Cookies are small data files stored on your device. We use analytics cookies <strong>only</strong> after you accept them. You can withdraw consent at any time via &ldquo;Cookie settings&rdquo; in the footer.
             </p>
           </div>
           

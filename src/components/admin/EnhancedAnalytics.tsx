@@ -1,29 +1,17 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
-import { AnalyticsSummary, DateRange } from '@/types';
-import { DateRangePicker, DATE_PRESETS } from '@/components/ui/date-range-picker';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Calendar, Filter, Download, TrendingUp, Users, MousePointer, Clock } from 'lucide-react';
+import { RefreshCw, Activity, Smartphone, Monitor, Globe } from 'lucide-react';
+import { AnalyticsSummary, DateRange } from '@/types';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { 
   TopPagesChart,
   GenderDemographicsChart,
   AgeDemographicsChart
 } from '@/components/ui/charts';
-import { 
-  Calendar, 
-  TrendingUp, 
-  Users, 
-  Eye, 
-  Target, 
-  Activity,
-  Smartphone,
-  Monitor,
-  Globe,
-  Phone,
-  Clock,
-  Download,
-  RefreshCw
-} from 'lucide-react';
 import { format, subDays } from 'date-fns';
 
 interface EnhancedAnalyticsProps {
@@ -36,7 +24,7 @@ export default function EnhancedAnalytics({ className }: EnhancedAnalyticsProps)
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [dateRangeLoading, setDateRangeLoading] = useState(false);
-  const initialLoadRef = useRef(true);
+  const initialLoadRef = React.useRef(true);
   
   // Date range state - default to last 30 days
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -154,7 +142,7 @@ export default function EnhancedAnalytics({ className }: EnhancedAnalyticsProps)
         value: analytics.totalPageViews.toLocaleString(),
         change: '+8%',
         trend: 'up',
-        icon: Eye,
+        icon: MousePointer,
         color: 'from-emerald-500 to-emerald-600',
         description: 'Total pages viewed'
       },
@@ -163,7 +151,7 @@ export default function EnhancedAnalytics({ className }: EnhancedAnalyticsProps)
         value: `${analytics.conversionRate}%`,
         change: analytics.conversionRate > 2 ? '+15%' : '-5%',
         trend: analytics.conversionRate > 2 ? 'up' : 'down',
-        icon: Target,
+        icon: Filter,
         color: 'from-amber-500 to-amber-600',
         description: 'Visitors to leads conversion'
       },
@@ -172,7 +160,7 @@ export default function EnhancedAnalytics({ className }: EnhancedAnalyticsProps)
         value: analytics.totalLeads.toString(),
         change: '+25%',
         trend: 'up',
-        icon: Phone,
+        icon: Download,
         color: 'from-purple-500 to-purple-600',
         description: 'Project inquiries received'
       },
@@ -190,7 +178,7 @@ export default function EnhancedAnalytics({ className }: EnhancedAnalyticsProps)
         value: `${analytics.userBehavior.bounceRate.toFixed(1)}%`,
         change: analytics.userBehavior.bounceRate < 50 ? '-3%' : '+2%',
         trend: analytics.userBehavior.bounceRate < 50 ? 'down' : 'up',
-        icon: Activity,
+        icon: TrendingUp,
         color: 'from-rose-500 to-rose-600',
         description: 'Single page sessions'
       },

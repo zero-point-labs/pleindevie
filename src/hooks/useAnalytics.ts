@@ -110,8 +110,8 @@ const isDNT = (): boolean => {
   if (typeof navigator === 'undefined') return false;
   return (
     navigator.doNotTrack === '1' ||
-    (window as any).doNotTrack === '1' ||
-    (navigator as any).msDoNotTrack === '1'
+    (window as Window & typeof globalThis & { doNotTrack?: string }).doNotTrack === '1' ||
+    (navigator as Navigator & { msDoNotTrack?: string }).msDoNotTrack === '1'
   );
 };
 

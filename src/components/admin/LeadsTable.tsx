@@ -313,7 +313,7 @@ function LeadDetailsModal({ lead, isOpen, onClose, onStatusUpdate }: LeadDetails
 export function LeadsTable({ leads, onLeadUpdate }: LeadsTableProps) {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState<{ [key: string]: boolean }>({});
 
   const handleViewLead = (lead: Lead) => {
     setSelectedLead(lead);
@@ -327,7 +327,7 @@ export function LeadsTable({ leads, onLeadUpdate }: LeadsTableProps) {
 
   const handleStatusUpdate = async (leadId: string, newStatus: Lead['status']) => {
     try {
-      setUpdatingStatus(leadId);
+      setUpdatingStatus({ ...updatingStatus, [leadId]: true });
       
       const response = await fetch('/api/leads/appwrite', {
         method: 'PATCH',
@@ -350,7 +350,7 @@ export function LeadsTable({ leads, onLeadUpdate }: LeadsTableProps) {
       console.error('Error updating lead status:', error);
       throw error;
     } finally {
-      setUpdatingStatus(null);
+      setUpdatingStatus({ ...updatingStatus, [leadId]: false });
     }
   };
 

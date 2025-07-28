@@ -1,29 +1,38 @@
 'use client';
 
-import { useState } from 'react';
 import AdminLogin from '@/components/admin/AdminLogin';
 import AdminDashboard from '@/components/admin/AdminDashboard';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
-export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+function AdminContent() {
+  const { isAuthenticated, loading } = useAuth();
 
-  const handleLogin = (code: string) => {
-    if (code === 'Renovation123') {
-      setIsAuthenticated(true);
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mb-4 mx-auto"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#2C3E50]">
+    <div className="min-h-screen">
       {!isAuthenticated ? (
-        <AdminLogin onLogin={handleLogin} />
+        <AdminLogin />
       ) : (
-        <AdminDashboard onLogout={handleLogout} />
+        <AdminDashboard />
       )}
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <AuthProvider>
+      <AdminContent />
+    </AuthProvider>
   );
 } 

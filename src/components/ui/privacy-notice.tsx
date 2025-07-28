@@ -28,7 +28,7 @@ export function PrivacyNotice() {
   if (!showNotice) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:max-w-md z-50">
+    <div className="fixed bottom-4 z-50 left-4 right-4 md:left-auto md:right-4 md:w-80">
       <div className="bg-white/95 backdrop-blur-sm border border-yellow-400/20 rounded-xl p-4 shadow-lg">
         <div className="flex items-start gap-3">
           <div className="text-yellow-500 text-lg">🍪</div>

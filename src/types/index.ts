@@ -74,10 +74,22 @@ export interface AnimationVariants {
   };
 }
 
+// Date range types
+export interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+
+export interface DatePreset {
+  label: string;
+  value: string;
+  getDateRange: () => DateRange;
+}
+
 // Analytics types
 export interface AnalyticsEvent {
   id: string;
-  type: 'page_view' | 'lead_form_view' | 'lead_form_submit' | 'section_view' | 'button_click';
+  type: 'page_view' | 'lead_form_view' | 'lead_form_submit' | 'section_view' | 'button_click' | 'phone_click' | 'project_inquiry';
   timestamp: string;
   sessionId: string;
   data: {
@@ -95,6 +107,8 @@ export interface AnalyticsEvent {
     projectType?: string;
     budget?: string;
     timeline?: string;
+    location?: string;
+    source?: string;
   };
 }
 
@@ -132,6 +146,12 @@ export interface GeographicData {
   percentage: number;
 }
 
+export interface GenderData {
+  gender: string;
+  count: number;
+  percentage: number;
+}
+
 export interface PagePerformance {
   page: string;
   views: number;
@@ -155,6 +175,19 @@ export interface RealTimeData {
   recentEvents: Array<{ event: string; timestamp: string; page: string }>;
 }
 
+
+
+export interface PerformanceMetrics {
+  pageLoadTime: number;
+  coreWebVitals: {
+    lcp: number; // Largest Contentful Paint
+    fid: number; // First Input Delay
+    cls: number; // Cumulative Layout Shift
+  };
+  mobileScore: number;
+  desktopScore: number;
+}
+
 export interface AnalyticsSummary {
   // Core metrics
   totalPageViews: number;
@@ -176,6 +209,9 @@ export interface AnalyticsSummary {
   topCountries: GeographicData[];
   topCities: GeographicData[];
   
+  // Demographics
+  genderBreakdown?: GenderData[];
+  
   // Time-based analytics
   dailyStats: Array<{
     date: string;
@@ -183,22 +219,76 @@ export interface AnalyticsSummary {
     visitors: number;
     sessions: number;
     avgSessionDuration: number;
+    leads?: number;
   }>;
   
-  hourlyPattern: Array<{
+  // Hourly pattern
+  hourlyPattern?: Array<{
     hour: number;
     visitors: number;
     activity: 'low' | 'medium' | 'high';
   }>;
+
   
   // Real-time data
   realTime?: RealTimeData;
   
-  // Minimal lead data (kept simple)
+  // Lead data
   totalLeads: number;
   conversionRate: number;
   topProjectTypes?: Array<{
     type: string;
     count: number;
   }>;
+  
+
+  
+  // Performance metrics
+  performanceMetrics?: PerformanceMetrics;
+  
+  // Key Performance Indicators
+  kpis: {
+    costPerLead?: number;
+    returnVisitorRate: number;
+    avgProjectValue?: number;
+    leadQualityScore?: number;
+  };
+
+  // Renovation-specific metrics
+  renovationMetrics?: RenovationMetrics;
+}
+
+export interface RenovationMetrics {
+  totalProjects: number;
+  avgProjectValue: number;
+  completionRate: number;
+  customerSatisfaction: number;
+  servicePageViews?: Array<{
+    service: string;
+    views: number;
+    avgTimeOnPage: number;
+    conversionRate: number;
+  }>;
+  projectInquiries?: Array<{
+    projectType: string;
+    count: number;
+    averageBudget: string;
+    averageTimeline: string;
+  }>;
+  leadSources?: Array<{
+    source: string;
+    leads: number;
+    quality: number;
+  }>;
+  conversionFunnel?: {
+    pageViews: number;
+    formViews: number;
+    formSubmissions: number;
+    conversionRate: number;
+    qualifiedLeads: number;
+  };
+  seasonalTrends?: unknown[];
+  phoneClickThroughs?: number;
+  quotesRequested?: number;
+  formAbandonmentRate?: number;
 }

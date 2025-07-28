@@ -200,7 +200,7 @@ const Hero = () => {
 
           {/* Right Column - Before/After Slider */}
           <motion.div
-            className="flex items-center justify-center order-2 md:order-2 w-full"
+            className="flex items-center justify-center order-2 md:order-2 w-full max-w-full"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
@@ -209,13 +209,13 @@ const Hero = () => {
               ease: ANIMATION_EASE.easeOut,
             }}
           >
-            <div className="relative w-full">
+            <div className="relative w-full max-w-[350px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto">
               {/* Decorative elements */}
               <div className="absolute -top-6 -left-6 h-32 w-32 rounded-full bg-[#fbbf24]/20 blur-xl" aria-hidden="true" />
               <div className="absolute -bottom-6 -right-6 h-40 w-40 rounded-full bg-[#fbbf24]/10 blur-2xl" aria-hidden="true" />
               
               {/* Compare Slider Component with Border Beam */}
-              <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl w-full h-[350px] md:h-[450px] lg:h-[500px] min-w-[400px] md:min-w-[500px] lg:min-w-[600px]">
+              <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl w-full h-[280px] sm:h-[320px] md:h-[400px] lg:h-[450px]">
                 <CompareSlider
                   beforeImage="/after.jpg"
                   afterImage="/before.jpg"
@@ -248,7 +248,7 @@ const Hero = () => {
               
               {/* Floating badge */}
               <div 
-                className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-[#fbbf24] text-[#2C3E50] px-6 py-3 rounded-full font-bold text-sm shadow-lg z-20"
+                className="absolute -bottom-6 sm:-bottom-8 left-1/2 transform -translate-x-1/2 bg-[#fbbf24] text-[#2C3E50] px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold text-xs sm:text-sm shadow-lg z-30"
                 role="note"
                 aria-label="Renovation completion time"
               >
@@ -261,7 +261,7 @@ const Hero = () => {
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        className="absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 z-10"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 0.5 }}

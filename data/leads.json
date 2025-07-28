@@ -54,5 +54,47 @@
     "id": "lead_1753378969519_tn75fq6tx",
     "timestamp": "2025-07-24T17:42:49.519Z",
     "status": "new"
+  },
+  {
+    "name": "Antreas Kyriakou",
+    "email": "akyriakouu@gmail.com",
+    "phone": "+35797774317",
+    "projectType": "Kitchen",
+    "budget": "Not Sure",
+    "timeline": "Just exploring",
+    "message": "j",
+    "termsAccepted": true,
+    "marketingConsent": false,
+    "id": "lead_1753628335230_3v5ah0ag8",
+    "timestamp": "2025-07-27T14:58:55.230Z",
+    "status": "new"
+  },
+  {
+    "name": "Antreas Kyriakou",
+    "email": "akyriakouu@gmail.com",
+    "phone": "+35797774317",
+    "projectType": "Kitchen",
+    "budget": "Not Sure",
+    "timeline": "Just exploring",
+    "message": "de",
+    "termsAccepted": true,
+    "marketingConsent": false,
+    "id": "lead_1753628354188_u2rt2kdqy",
+    "timestamp": "2025-07-27T14:59:14.188Z",
+    "status": "new"
+  },
+  {
+    "name": "Antreas Kyriakou",
+    "email": "info@shillalace.com",
+    "phone": "+35797774317",
+    "projectType": "Kitchen",
+    "budget": "Not Sure",
+    "timeline": "Just exploring",
+    "message": "fvv",
+    "termsAccepted": true,
+    "marketingConsent": false,
+    "id": "lead_1753628398340_w14ybql3b",
+    "timestamp": "2025-07-27T14:59:58.340Z",
+    "status": "new"
   }
 ]

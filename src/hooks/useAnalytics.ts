@@ -203,7 +203,14 @@ export function useAnalytics(): UseAnalyticsReturn {
     const handleConsentChange = (e: Event) => {
       const detail = (e as CustomEvent).detail as string;
       console.log(`[Analytics] 'analytics-consent' event received with detail: ${detail}`);
-      updateConsent(detail === 'granted');
+      const isGranted = detail === 'granted';
+      updateConsent(isGranted);
+
+      // If consent has just been granted, track the current page view immediately
+      if (isGranted) {
+        console.log('[Analytics] Consent granted, firing page_view event now.');
+        trackGA4PageView(window.location.pathname);
+      }
     };
 
     console.log('[Analytics] Adding consent change listener.');

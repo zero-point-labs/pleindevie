@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar, Filter, Download, TrendingUp, Users, MousePointer, Clock } from 'lucide-react';
+import { Filter, Download, TrendingUp, Users, MousePointer, Clock } from 'lucide-react';
 import { RefreshCw, Activity, Smartphone, Monitor, Globe } from 'lucide-react';
 import { AnalyticsSummary, DateRange } from '@/types';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
@@ -66,7 +65,7 @@ export default function EnhancedAnalytics({ className }: EnhancedAnalyticsProps)
       setRefreshing(false);
       setDateRangeLoading(false);
     }
-  }, []); // Remove dateRange dependency
+  }, [dateRange]); // Include dateRange dependency
 
   // Fetch data when component mounts or date range changes
   useEffect(() => {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { format, startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subYears } from 'date-fns';
 import { DateRange, DatePreset } from '@/types';
 import { Button } from './button';
@@ -9,8 +9,7 @@ import {
   Select, 
   SelectContent, 
   SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+  SelectTrigger
 } from './select';
 
 interface DateRangePickerProps {
@@ -111,7 +110,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
         onChange(range);
       }
     }
-  }, []);
+  }, [value.startDate, value.endDate, onChange]);
 
   // Check if current range matches any preset
   useEffect(() => {
@@ -169,15 +168,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
 
 
 
-  const getDisplayText = () => {
-    // If it's a preset, show the preset label
-    if (!isCustom && selectedPreset !== 'custom') {
-      const preset = DATE_PRESETS.find(p => p.value === selectedPreset);
-      return preset ? preset.label : 'Select range';
-    }
-    // If it's custom, show the formatted date range
-    return formatDateRange();
-  };
+
 
   return (
     <div className={`${className}`}>

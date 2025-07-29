@@ -110,7 +110,7 @@ export function PrivacyNotice() {
               We value your privacy
             </h3>
             <p className="text-xs text-gray-600 mb-3">
-              We use Google Analytics 4 to understand how our website is used so we can improve your experience. Analytics cookies will <strong>only</strong> be set if you choose "Accept all". You can withdraw your consent at any time by clicking "Cookie&nbsp;settings" in the footer. For full details please read our&nbsp;
+              We use Google Analytics 4 to understand how our website is used so we can improve your experience. Analytics cookies will <strong>only</strong> be set if you choose &quot;Accept all&quot;. You can withdraw your consent at any time by clicking &quot;Cookie&nbsp;settings&quot; in the footer. For full details please read our&nbsp;
               <a href="/privacy-policy" className="underline hover:text-yellow-600 transition-colors">Privacy&nbsp;Policy</a>.
             </p>
             <div className="flex gap-2">

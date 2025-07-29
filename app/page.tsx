@@ -4,11 +4,7 @@ import Header from '@/components/layout/Header';
 import Hero from '@/components/sections/Hero';
 import LeadCaptureForm from '@/components/sections/LeadCaptureForm';
 import { PrivacyNotice } from '@/components/ui/privacy-notice';
-import { useAnalytics } from '@/hooks/useAnalytics';
-
 export default function Home() {
-  // Initialize analytics tracking
-  useAnalytics();
 
   return (
     <>

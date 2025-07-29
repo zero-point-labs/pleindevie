@@ -4,6 +4,7 @@ import "./globals.css";
 import { PrivacyNotice } from "@/components/ui/privacy-notice";
 import { ConsentManager } from "@/components/ui/consent-manager";
 import { Footer } from "@/components/layout/Footer";
+import { AnalyticsProvider } from "@/components/layout/AnalyticsProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,6 +63,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <AnalyticsProvider />
         {children}
         {/* GDPR Compliance Components */}
         <PrivacyNotice />

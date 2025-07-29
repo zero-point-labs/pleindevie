@@ -171,34 +171,47 @@ export function useAnalytics(): UseAnalyticsReturn {
 
   // Initialize session ID and set up consent listener
   useEffect(() => {
-    if (sessionIdRef.current) return;
+    console.log('[Analytics] Hook initializing...');
+    if (sessionIdRef.current) {
+      console.log('[Analytics] Hook already initialized.');
+      return;
+    }
+
+    console.log(`[Analytics] GA_ID from env: ${process.env.NEXT_PUBLIC_GA_ID || 'NOT FOUND'}`);
 
     // Generate or retrieve session ID
     let sid = sessionStorage.getItem('analytics_session_id');
     if (!sid) {
       sid = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       sessionStorage.setItem('analytics_session_id', sid);
+      console.log(`[Analytics] New session ID generated: ${sid}`);
+    } else {
+      console.log(`[Analytics] Existing session ID found: ${sid}`);
     }
     sessionIdRef.current = sid;
 
     // Initial page view
+    console.log(`[Analytics] Tracking initial page view for: ${window.location.pathname}`);
     trackGA4PageView(window.location.pathname);
 
     // Handle initial consent state
-    if (hasGrantedConsent()) {
-      updateConsent(true);
-    } else {
-      updateConsent(false);
-    }
+    const initialConsent = hasGrantedConsent();
+    console.log(`[Analytics] Initial consent check: ${initialConsent}`);
+    updateConsent(initialConsent);
 
     // Listen for consent changes
     const handleConsentChange = (e: Event) => {
       const detail = (e as CustomEvent).detail as string;
+      console.log(`[Analytics] 'analytics-consent' event received with detail: ${detail}`);
       updateConsent(detail === 'granted');
     };
 
+    console.log('[Analytics] Adding consent change listener.');
     window.addEventListener('analytics-consent', handleConsentChange);
-    return () => window.removeEventListener('analytics-consent', handleConsentChange);
+    return () => {
+      console.log('[Analytics] Removing consent change listener.');
+      window.removeEventListener('analytics-consent', handleConsentChange);
+    };
   }, []);
 
   const trackPageView = async (page?: string): Promise<void> => {

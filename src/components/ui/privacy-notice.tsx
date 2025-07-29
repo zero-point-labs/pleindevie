@@ -16,42 +16,86 @@ export function PrivacyNotice() {
 
     if (dnt) {
       localStorage.setItem('analytics_consent', 'declined');
+      console.log('🚫 Do Not Track detected - Analytics consent automatically declined');
       return;
     }
 
     const existingConsent = localStorage.getItem('analytics_consent');
 
     if (!existingConsent) {
-      // Show notice after a brief delay to avoid layout shift
-      const timer = setTimeout(() => setShowNotice(true), 2000);
+      // Show notice after a configurable delay to avoid layout shift
+      const delay = parseInt(process.env.NEXT_PUBLIC_CONSENT_BANNER_DELAY || '2000');
+      const timer = setTimeout(() => setShowNotice(true), delay);
       return () => clearTimeout(timer);
     }
   }, []);
 
+  const clearAllAnalyticsCookies = () => {
+    // Clear Google Analytics cookies comprehensively
+    const cookieNames = ['_ga', '_gid', '_gac_', '_gtag_', '_gcl_au', '_gcl_aw', '_gac_GB_'];
+    const domains = [window.location.hostname, `.${window.location.hostname}`];
+    
+    cookieNames.forEach(cookieName => {
+      domains.forEach(domain => {
+        // Clear for current path and root path
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}; SameSite=Lax`;
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+      });
+    });
+
+    // Clear any cookies that start with GA patterns
+    const cookies = document.cookie.split(';');
+    cookies.forEach((cookie) => {
+      const trimmed = cookie.trim();
+      if (trimmed.startsWith('_ga') || trimmed.startsWith('_gid') || trimmed.startsWith('_gac') || trimmed.startsWith('_gtag')) {
+        const eqPos = trimmed.indexOf('=');
+        const name = eqPos > -1 ? trimmed.substr(0, eqPos) : trimmed;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}; SameSite=Lax`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${window.location.hostname}; SameSite=Lax`;
+      }
+    });
+
+    console.log('🍪 All analytics cookies cleared');
+  };
+
   const handleAccept = () => {
     localStorage.setItem('analytics_consent', 'accepted');
+    localStorage.setItem('analytics_consent_timestamp', new Date().toISOString());
+    
     // Notify application
     window.dispatchEvent(new CustomEvent('analytics-consent', { detail: 'granted' }));
     setShowNotice(false);
+    
+    console.log('✅ Analytics consent granted');
   };
 
   const handleDecline = () => {
     localStorage.setItem('analytics_consent', 'declined');
-    // Notify application
+    localStorage.setItem('analytics_consent_timestamp', new Date().toISOString());
+    
+    // Notify application first
     window.dispatchEvent(new CustomEvent('analytics-consent', { detail: 'denied' }));
 
-    // Attempt to clear GA cookies
-    const cookies = document.cookie.split(';');
-    cookies.forEach((cookie) => {
-      const trimmed = cookie.trim();
-      if (trimmed.startsWith('_ga') || trimmed.startsWith('_gid') || trimmed.startsWith('_gac')) {
-        const eqPos = trimmed.indexOf('=');
-        const name = eqPos > -1 ? trimmed.substr(0, eqPos) : trimmed;
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
+    // Clear all analytics cookies
+    clearAllAnalyticsCookies();
+
+    // Clear localStorage analytics data
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('analytics_') && key !== 'analytics_consent' && key !== 'analytics_consent_timestamp') {
+        localStorage.removeItem(key);
+      }
+    });
+
+    // Clear sessionStorage analytics data
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith('analytics_')) {
+        sessionStorage.removeItem(key);
       }
     });
 
     setShowNotice(false);
+    console.log('🚫 Analytics consent declined and all data cleared');
   };
 
   if (!showNotice) return null;
@@ -66,7 +110,7 @@ export function PrivacyNotice() {
               We value your privacy
             </h3>
             <p className="text-xs text-gray-600 mb-3">
-              We use Google Analytics 4 to understand how our website is used so we can improve your experience. Analytics cookies will <strong>only</strong> be set if you choose “Accept all”. You can withdraw your consent at any time by clicking “Cookie&nbsp;settings” in the footer. For full details please read our&nbsp;
+              We use Google Analytics 4 to understand how our website is used so we can improve your experience. Analytics cookies will <strong>only</strong> be set if you choose "Accept all". You can withdraw your consent at any time by clicking "Cookie&nbsp;settings" in the footer. For full details please read our&nbsp;
               <a href="/privacy-policy" className="underline hover:text-yellow-600 transition-colors">Privacy&nbsp;Policy</a>.
             </p>
             <div className="flex gap-2">

@@ -22,8 +22,7 @@ export default function Home() {
         {/* Additional sections will be added here as we progress through the tasks */}
       </main>
       
-      {/* Privacy Notice for Analytics */}
-      <PrivacyNotice />
+      {/* Privacy Notice is now handled globally in RootLayout */}
     </>
   );
 }

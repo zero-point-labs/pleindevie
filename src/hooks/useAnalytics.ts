@@ -25,32 +25,10 @@ interface UseAnalyticsReturn {
   sessionId: string;
 }
 
-// Google Analytics 4 helper functions
-const initGA4 = () => {
-  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_GA_ID) {
-    // Initialize GA4 if not already done
-    if (!window.gtag) {
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function(...args: unknown[]) {
-        window.dataLayer.push(args);
-      };
-      window.gtag('js', new Date());
-      window.gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
-        // Configure for privacy and performance
-        anonymize_ip: true,
-        cookie_flags: 'SameSite=None;Secure',
-        // Disable automatic page view tracking since we do it manually
-        send_page_view: false,
-      });
-    }
-  }
-};
-
 const trackGA4Event = (eventName: string, parameters: Record<string, unknown> = {}) => {
   if (typeof window !== 'undefined' && window.gtag && process.env.NEXT_PUBLIC_GA_ID) {
     window.gtag('event', eventName, {
       ...parameters,
-      // Add custom parameters for renovation business
       timestamp: new Date().toISOString(),
     });
   }
@@ -58,45 +36,12 @@ const trackGA4Event = (eventName: string, parameters: Record<string, unknown> = 
 
 const trackGA4PageView = (page: string) => {
   if (typeof window !== 'undefined' && window.gtag && process.env.NEXT_PUBLIC_GA_ID) {
-    window.gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
+    window.gtag('event', 'page_view', {
       page_path: page,
+      page_title: document.title,
+      page_location: window.location.href,
     });
   }
-};
-
-// Helper: inject GA script dynamically
-const loadGaScript = (gaId: string): Promise<void> => {
-  return new Promise((resolve) => {
-    if (typeof window === 'undefined') return resolve();
-
-    // If script already loaded resolve immediately
-    if (document.getElementById('ga-consent-script')) {
-      return resolve();
-    }
-
-    // Create global dataLayer and gtag function if not present
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){
-      // eslint-disable-next-line prefer-rest-params
-      window.dataLayer.push(arguments);
-    }
-    window.gtag = window.gtag || gtag;
-
-    // Consent mode default – denied until user grants
-    window.gtag('consent', 'default', {
-      ad_storage: 'denied',
-      analytics_storage: 'denied',
-    });
-
-    const script = document.createElement('script');
-    script.id = 'ga-consent-script';
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-    script.onload = () => {
-      resolve();
-    };
-    document.head.appendChild(script);
-  });
 };
 
 // Helper: check if user has granted consent
@@ -115,33 +60,19 @@ const isDNT = (): boolean => {
   );
 };
 
-// Enable analytics after consent
-const enableAnalytics = async (): Promise<void> => {
-  if (typeof window === 'undefined') return;
-  if (!process.env.NEXT_PUBLIC_GA_ID) return;
-  await loadGaScript(process.env.NEXT_PUBLIC_GA_ID);
-  initGA4();
-  window.gtag('consent', 'update', { analytics_storage: 'granted' });
-  const currentPage = window.location.pathname;
-  trackGA4PageView(currentPage);
-};
+// Update consent state
+const updateConsent = (granted: boolean) => {
+  if (typeof window === 'undefined' || !window.gtag) return;
 
-// Disable analytics and clear cookies
-const disableAnalytics = (): void => {
-  if (typeof window === 'undefined') return;
-  if (window.gtag) {
-    window.gtag('consent', 'update', { analytics_storage: 'denied' });
-  }
-  // Clear cookies
-  const cookies = document.cookie.split(';');
-  cookies.forEach((cookie) => {
-    const trimmed = cookie.trim();
-    if (trimmed.startsWith('_ga') || trimmed.startsWith('_gid') || trimmed.startsWith('_gac')) {
-      const eqPos = trimmed.indexOf('=');
-      const name = eqPos > -1 ? trimmed.substr(0, eqPos) : trimmed;
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
-    }
-  });
+  const consentState = {
+    ad_storage: granted ? 'granted' : 'denied',
+    analytics_storage: granted ? 'granted' : 'denied',
+    ad_user_data: granted ? 'granted' : 'denied',
+    ad_personalization: granted ? 'granted' : 'denied',
+  };
+
+  window.gtag('consent', 'update', consentState);
+  console.log(`Analytics consent updated to: ${granted ? 'granted' : 'denied'}`);
 };
 
 export function useAnalytics(): UseAnalyticsReturn {
@@ -238,34 +169,34 @@ export function useAnalytics(): UseAnalyticsReturn {
     }
   };
 
-  // Initialize GA4 and generate session ID
+  // Initialize session ID and set up consent listener
   useEffect(() => {
     if (sessionIdRef.current) return;
 
-    // Generate or retrieve session ID (independent of analytics consent)
-    let sessionId = sessionStorage.getItem('analytics_session_id');
-    if (!sessionId) {
-      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      sessionStorage.setItem('analytics_session_id', sessionId);
+    // Generate or retrieve session ID
+    let sid = sessionStorage.getItem('analytics_session_id');
+    if (!sid) {
+      sid = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      sessionStorage.setItem('analytics_session_id', sid);
     }
-    sessionIdRef.current = sessionId;
+    sessionIdRef.current = sid;
 
-    // Handle initial consent state respecting DNT
-    if (isDNT() || localStorage.getItem('analytics_consent') === 'declined') {
-      disableAnalytics();
-    } else if (hasGrantedConsent()) {
-      enableAnalytics();
+    // Initial page view
+    trackGA4PageView(window.location.pathname);
+
+    // Handle initial consent state
+    if (hasGrantedConsent()) {
+      updateConsent(true);
+    } else {
+      updateConsent(false);
     }
 
-    // Listen for consent change events to enable/disable analytics on the fly
+    // Listen for consent changes
     const handleConsentChange = (e: Event) => {
       const detail = (e as CustomEvent).detail as string;
-      if (detail === 'granted') {
-        enableAnalytics();
-      } else {
-        disableAnalytics();
-      }
+      updateConsent(detail === 'granted');
     };
+
     window.addEventListener('analytics-consent', handleConsentChange);
     return () => window.removeEventListener('analytics-consent', handleConsentChange);
   }, []);
@@ -316,4 +247,4 @@ declare global {
     gtag: (...args: unknown[]) => void;
     dataLayer: unknown[];
   }
-} 
+}

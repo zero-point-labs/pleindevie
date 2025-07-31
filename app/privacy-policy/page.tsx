@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold text-slate-800 mt-8 mb-4">1. Information we collect</h2>
             <p>
-              We only collect anonymous usage statistics through Google Analytics 4 when you have given us explicit consent. No personally identifiable information is collected unless you voluntarily provide it via contact forms.
+              We only collect anonymous usage statistics through Google Analytics 4 when you have given us explicit consent. No personally identifiable information is collected unless you voluntarily provide it via contact forms <strong>(lawful basis: <em>legitimate interest&nbsp;– analytics</em> or <em>consent</em> where applicable)</strong>.
             </p>
           </div>
           
@@ -36,9 +36,11 @@ export default function PrivacyPolicyPage() {
           </div>
           
           <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-800 mt-8 mb-4">4. Third-party services</h2>
+            <h2 className="text-2xl font-semibold text-slate-800 mt-8 mb-4">4. Third-party services & international transfers</h2>
             <p>
-              We use Google Analytics 4 with Google Consent Mode v2. Analytics cookies are set to <em>denied</em> by default and switch to <em>granted</em> only after your consent.
+              • <strong>Google Analytics 4</strong> (USA) — analytics data; EU-US Data Privacy&nbsp;Framework applies.<br/>
+              • <strong>Appwrite Cloud</strong> (region-eu) — stores lead details you submit via our forms.<br/>
+              Data may be processed outside the EEA; Standard Contractual Clauses are in place.
             </p>
           </div>
           
@@ -50,9 +52,22 @@ export default function PrivacyPolicyPage() {
           </div>
           
           <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-800 mt-8 mb-4">6. Contact</h2>
+            <h2 className="text-2xl font-semibold text-slate-800 mt-8 mb-4">6. Data retention</h2>
             <p>
-              If you have questions about this Privacy Policy, please email <a href="mailto:privacy@example.com" className="text-yellow-600 underline hover:text-yellow-700">privacy@example.com</a>.
+              Form submissions are retained for <strong>24&nbsp;months</strong> then deleted or anonymised. Aggregated analytics data is retained for <strong>14&nbsp;months</strong>.
+            </p>
+          </div>
+          
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-slate-800 mt-8 mb-4">7. Your rights & contact</h2>
+            <p>
+              You can request access, correction, deletion, or export of your personal data at any time by emailing&nbsp;
+              <a
+                href="mailto:privacy@yourbusiness.com"
+                className="text-yellow-600 underline hover:text-yellow-700"
+              >
+                privacy@yourbusiness.com
+              </a>.
             </p>
           </div>
         </div>

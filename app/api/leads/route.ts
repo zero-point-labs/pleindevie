@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { leadCaptureFormSchema, type LeadCaptureFormData } from '@/lib/validation';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { appwriteService, authService } from '@/lib/appwrite';
+import { checkRateLimit } from '@/lib/ratelimit';
 
 // Define the lead data structure with additional fields
 interface Lead extends LeadCaptureFormData {
@@ -10,137 +10,47 @@ interface Lead extends LeadCaptureFormData {
   status: 'new' | 'contacted' | 'qualified' | 'closed';
 }
 
-// Global variable with better initialization
-declare global {
-  var __LEADS_STORAGE__: {
-    leads: Lead[];
-    lastUpdated: number;
-  } | undefined;
-}
+// Rate-limiting configuration (window in ms)
+const RATE_LIMITS = {
+  FORM_SUBMISSION: 5, // submissions per 5 minutes per IP
+  ADMIN_API: 100, // requests per minute per user
+  WINDOW_MS: 5 * 60 * 1000,
+};
 
-// Initialize global storage with timestamp
-function initializeGlobalStorage() {
-  if (!global.__LEADS_STORAGE__) {
-    global.__LEADS_STORAGE__ = {
-      leads: [],
-      lastUpdated: Date.now()
-    };
-    console.log('Initialized global leads storage');
+function getClientIP(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  const real = request.headers.get('x-real-ip');
+  
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
   }
-  return global.__LEADS_STORAGE__;
-}
-
-// Path to the leads data file (for local development)
-const LEADS_FILE_PATH = path.join(process.cwd(), 'data', 'leads.json');
-
-// Storage functions that work in both environments
-async function readLeads(): Promise<Lead[]> {
-  try {
-    console.log('Reading leads, environment:', process.env.NODE_ENV);
-    
-    // Initialize global storage
-    const storage = initializeGlobalStorage();
-    
-    // Try to read from file first (works in local development)
-    if (process.env.NODE_ENV === 'development') {
-      try {
-        const dataDir = path.dirname(LEADS_FILE_PATH);
-        await fs.mkdir(dataDir, { recursive: true });
-        
-        const data = await fs.readFile(LEADS_FILE_PATH, 'utf-8');
-        const fileLeads = JSON.parse(data);
-        
-        // Sync global storage with file storage
-        storage.leads = fileLeads;
-        storage.lastUpdated = Date.now();
-        
-        console.log(`Loaded ${fileLeads.length} leads from file`);
-        return fileLeads;
-      } catch {
-        console.log('File not found, creating new one');
-        // File doesn't exist or can't be read, create it with empty array
-        await fs.writeFile(LEADS_FILE_PATH, JSON.stringify([], null, 2));
-        return [];
-      }
-    }
-    
-    // In production (Vercel), use global variable with demo fallback
-    console.log(`Using global storage with ${storage.leads.length} leads`);
-    
-    // If no leads in storage and it's production, add some demo data
-    if (storage.leads.length === 0 && process.env.NODE_ENV === 'production') {
-      const demoLeads: Lead[] = [
-        {
-          id: 'demo_lead_1',
-          name: 'Demo Customer 1',
-          email: 'demo1@example.com',
-          phone: '+1234567890',
-          projectType: 'Kitchen',
-                     budget: '$50k-$100k',
-          timeline: '1-3 months',
-          message: 'Interested in kitchen renovation',
-          termsAccepted: true,
-          marketingConsent: true,
-          timestamp: new Date().toISOString(),
-          status: 'new'
-        },
-        {
-          id: 'demo_lead_2',
-          name: 'Demo Customer 2',
-          email: 'demo2@example.com',
-          phone: '+1234567891',
-          projectType: 'Bathroom',
-                     budget: '$25k-$50k',
-          timeline: '3-6 months',
-          message: 'Looking for bathroom remodel',
-          termsAccepted: true,
-          marketingConsent: false,
-          timestamp: new Date().toISOString(),
-          status: 'new'
-        }
-      ];
-      storage.leads = demoLeads;
-      console.log('Added demo leads for production');
-    }
-    
-    return storage.leads;
-  } catch (error) {
-    console.error('Error reading leads:', error);
-    const storage = initializeGlobalStorage();
-    return storage.leads;
+  if (real) {
+    return real;
   }
+  return 'unknown';
 }
 
-async function writeLeads(leads: Lead[]): Promise<void> {
+// Middleware to check authentication for admin operations
+async function requireAuth(request: NextRequest) {
   try {
-    console.log(`Writing ${leads.length} leads`);
-    
-    // Update global storage
-    const storage = initializeGlobalStorage();
-    storage.leads = leads;
-    storage.lastUpdated = Date.now();
-    
-    // Try to write to file (works in local development)
-    if (process.env.NODE_ENV === 'development') {
-      try {
-        const dataDir = path.dirname(LEADS_FILE_PATH);
-        await fs.mkdir(dataDir, { recursive: true });
-        await fs.writeFile(LEADS_FILE_PATH, JSON.stringify(leads, null, 2));
-        console.log('Leads written to file successfully');
-      } catch {
-        console.log('File write failed (expected in Vercel), using memory storage');
-      }
+    const user = await authService.getCurrentUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
     }
-    
-    console.log('Leads written to global storage successfully');
+    return user;
   } catch (error) {
-    console.error('Error writing leads:', error);
+    return NextResponse.json(
+      { error: 'Authentication failed' },
+      { status: 401 }
+    );
   }
 }
 
 // Function to send lead to external services (optional)
 async function sendLeadToExternalService(lead: Lead) {
-  // You can configure these environment variables in Vercel
   const webhookUrl = process.env.WEBHOOK_URL;
   const emailService = process.env.EMAIL_SERVICE_URL;
   
@@ -184,12 +94,29 @@ async function sendLeadToExternalService(lead: Lead) {
   }
 }
 
-// GET endpoint to retrieve leads
-export async function GET() {
+// GET endpoint to retrieve leads (Admin only)
+export async function GET(request: NextRequest) {
   try {
-    console.log('GET /api/leads called');
-    const leads = await readLeads();
-    console.log(`Returning ${leads.length} leads`);
+    if (process.env.NODE_ENV !== 'production') console.log('GET /api/leads called');
+    
+    // Check authentication
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) {
+      return authResult; // Return error response
+    }
+    
+    // Rate limiting for admin operations
+    const userKey = `admin-${authResult.email}`;
+    if (!checkRateLimit(userKey, RATE_LIMITS.ADMIN_API, 60 * 1000)) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    }
+    
+    // Fetch leads from Appwrite
+    const leads = await appwriteService.getLeads();
+    if (process.env.NODE_ENV !== 'production') console.log(`Returning ${leads.length} leads from Appwrite`);
     
     return NextResponse.json({ 
       success: true, 
@@ -212,7 +139,17 @@ export async function GET() {
 // POST endpoint to create a new lead
 export async function POST(request: NextRequest) {
   try {
-    console.log('POST /api/leads called');
+    if (process.env.NODE_ENV !== 'production') console.log('POST /api/leads called');
+    
+    // Rate limiting for form submissions
+    const clientIP = getClientIP(request);
+    const ipKey = `form-${clientIP}`;
+    if (!checkRateLimit(ipKey, RATE_LIMITS.FORM_SUBMISSION, RATE_LIMITS.WINDOW_MS)) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please try again in a few minutes.' },
+        { status: 429 }
+      );
+    }
     
     // Parse the request body
     const body = await request.json();
@@ -234,50 +171,43 @@ export async function POST(request: NextRequest) {
     const leadData: LeadCaptureFormData = validationResult.data;
 
     // Create a new lead with additional fields
-    const newLead: Lead = {
+    const leadForAppwrite = {
       ...leadData,
-      id: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      status: 'new' as const,
       timestamp: new Date().toISOString(),
-      status: 'new',
     };
 
-    console.log('Created new lead:', newLead.id);
+    if (process.env.NODE_ENV !== 'production') console.log('Creating new lead in Appwrite');
 
-    // Read existing leads
-    const existingLeads = await readLeads();
-    console.log(`Found ${existingLeads.length} existing leads`);
+    // Save to Appwrite
+    const savedLead = await appwriteService.createLead(leadForAppwrite);
     
-    // Add the new lead
-    existingLeads.push(newLead);
-    
-    // Keep only the last 100 leads to prevent memory issues
-    const leadsToStore = existingLeads.slice(-100);
-    console.log(`Storing ${leadsToStore.length} leads`);
-    
-    // Save leads
-    await writeLeads(leadsToStore);
+    // Create lead object for external services (includes the Appwrite document ID)
+    const newLead: Lead = {
+      ...leadData,
+      id: savedLead.$id,
+      timestamp: savedLead.timestamp,
+      status: savedLead.status,
+    };
 
     // Send to external services (webhooks, email, etc.)
     await sendLeadToExternalService(newLead);
 
     // Log the lead data for debugging
-    console.log('New lead captured successfully:', {
-      id: newLead.id,
-      name: newLead.name,
-      email: newLead.email,
-      projectType: newLead.projectType,
-      timestamp: newLead.timestamp,
-      totalLeads: leadsToStore.length,
-      environment: process.env.NODE_ENV
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('New lead captured successfully:', {
+        id: savedLead.$id,
+        projectType: savedLead.projectType,
+        timestamp: savedLead.timestamp,
+      });
+    }
 
     // Return success response
     return NextResponse.json(
       {
         success: true,
         message: 'Lead captured successfully',
-        leadId: newLead.id,
-        totalLeads: leadsToStore.length
+        leadId: savedLead.$id,
       },
       { status: 201 }
     );
@@ -286,28 +216,116 @@ export async function POST(request: NextRequest) {
     console.error('Error processing lead:', error);
 
     // Return error response
-          return NextResponse.json(
-        {
-          error: 'Internal server error',
-          message: 'Failed to process lead submission',
-          details: error instanceof Error ? error.message : String(error)
-        },
-        { status: 500 }
-      );
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        message: 'Failed to process lead submission',
+        details: error instanceof Error ? error.message : String(error)
+      },
+      { status: 500 }
+    );
   }
 }
 
-// Handle unsupported methods
-export async function PUT() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  );
+// PUT endpoint to update lead status (Admin only)
+export async function PUT(request: NextRequest) {
+  try {
+    if (process.env.NODE_ENV !== 'production') console.log('PUT /api/leads called');
+    
+    // Check authentication
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+    
+    // Rate limiting for admin operations
+    const userKey = `admin-${authResult.email}`;
+    if (!checkRateLimit(userKey, RATE_LIMITS.ADMIN_API, 60 * 1000)) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    }
+    
+    const body = await request.json();
+    const { leadId, status } = body;
+    
+    if (!leadId || !status) {
+      return NextResponse.json(
+        { error: 'Lead ID and status are required' },
+        { status: 400 }
+      );
+    }
+    
+    const validStatuses = ['new', 'contacted', 'qualified', 'closed'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json(
+        { error: 'Invalid status' },
+        { status: 400 }
+      );
+    }
+    
+    // Update in Appwrite
+    const updatedLead = await appwriteService.updateLeadStatus(leadId, status);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Lead status updated successfully',
+      lead: updatedLead
+    }, { status: 200 });
+    
+  } catch (error) {
+    console.error('Error updating lead status:', error);
+    return NextResponse.json(
+      { error: 'Failed to update lead status', details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
 }
 
-export async function DELETE() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  );
+// DELETE endpoint to remove lead (Admin only)
+export async function DELETE(request: NextRequest) {
+  try {
+    if (process.env.NODE_ENV !== 'production') console.log('DELETE /api/leads called');
+    
+    // Check authentication
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+    
+    // Rate limiting for admin operations
+    const userKey = `admin-${authResult.email}`;
+    if (!checkRateLimit(userKey, RATE_LIMITS.ADMIN_API, 60 * 1000)) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    }
+    
+    const { searchParams } = new URL(request.url);
+    const leadId = searchParams.get('id');
+    
+    if (!leadId) {
+      return NextResponse.json(
+        { error: 'Lead ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Delete from Appwrite
+    await appwriteService.deleteLead(leadId);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Lead deleted successfully'
+    }, { status: 200 });
+    
+  } catch (error) {
+    console.error('Error deleting lead:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete lead', details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
 }

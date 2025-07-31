@@ -19,6 +19,24 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Home Renovation Services | Transform Your Space",
   description: "Professional home renovation services. Kitchen remodels, bathroom upgrades, and complete home transformations. Get your free quote today!",
+  keywords: [
+    "home renovation",
+    "kitchen remodel", 
+    "bathroom renovation",
+    "home improvement",
+    "construction",
+    "contractor"
+  ],
+  openGraph: {
+    title: "Home Renovation Services | Transform Your Space",
+    description: "Professional home renovation services. Kitchen remodels, bathroom upgrades, and complete home transformations. Get your free quote today!",
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Home Renovation Services | Transform Your Space",
+    description: "Professional home renovation services. Kitchen remodels, bathroom upgrades, and complete home transformations. Get your free quote today!",
+  },
 };
 
 export default function RootLayout({
@@ -67,6 +85,7 @@ export default function RootLayout({
         {children}
         {/* GDPR Compliance Components */}
         <PrivacyNotice />
+        {/* Footer links already exist; ensure ToS link present via Footer component */}
         <ConsentManager />
         <Footer />
       </body>

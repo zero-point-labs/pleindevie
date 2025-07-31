@@ -20,6 +20,8 @@ export function Footer() {
         >
           Privacy Policy
         </a>
+        <span className="mx-2">·</span>
+        <a href="/terms-of-service" className="hover:underline">Terms of Service</a>
       </div>
       <p className="mt-4 text-xs text-gray-400">© {new Date().getFullYear()} RenovatePro. All rights reserved.</p>
     </footer>

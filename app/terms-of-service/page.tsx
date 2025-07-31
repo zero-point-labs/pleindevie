@@ -10,7 +10,7 @@ export default function TermsOfServicePage() {
       <section className="text-lg text-gray-700 leading-relaxed space-y-6">
         <p>
           Welcome to our website. By accessing or using this site you agree to be bound by these Terms
-          of Service ("Terms"). If you do not agree with any part of the Terms, you may not use the
+          of Service (&quot;Terms&quot;). If you do not agree with any part of the Terms, you may not use the
           site.
         </p>
 

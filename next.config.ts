@@ -15,6 +15,22 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
   },
 
+  // Webpack configuration for better video handling
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(mp4|webm|ogg|swf|ogv)$/,
+      use: {
+        loader: 'file-loader',
+        options: {
+          publicPath: '/_next/static/videos/',
+          outputPath: 'static/videos/',
+          name: '[name].[hash].[ext]',
+        },
+      },
+    });
+    return config;
+  },
+
   // HTTPS redirects (production only)
   async redirects() {
     if (process.env.NODE_ENV === 'production') {
@@ -73,16 +89,18 @@ const nextConfig: NextConfig = {
             value: [
               // Default: only allow same-origin
               "default-src 'self'",
-              // Scripts: allow self, Google Analytics, and necessary inline scripts
-              `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV !== 'production' ? " 'unsafe-eval'" : ''} *.googletagmanager.com *.google-analytics.com`,
+              // Scripts: allow self and necessary inline scripts
+              `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV !== 'production' ? " 'unsafe-eval'" : ''}`,
               // Styles: allow self and inline styles (needed for CSS-in-JS)
               "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
-              // Images: allow self, data URLs, Google Analytics, and common CDNs
-              "img-src 'self' data: blob: *.googletagmanager.com *.google-analytics.com *.googleapis.com",
+              // Images: allow self and data URLs
+              "img-src 'self' data: blob:",
+              // Media: allow self for videos and audio
+              "media-src 'self' data: blob:",
               // Fonts: allow self and Google Fonts
               "font-src 'self' fonts.gstatic.com",
-              // Connect: allow self, Appwrite, Google Analytics
-              "connect-src 'self' *.appwrite.io *.cloud.appwrite.io *.googletagmanager.com *.google-analytics.com *.analytics.google.com",
+              // Connect: allow self
+              "connect-src 'self'",
               // Object, embed, base: block all
               "object-src 'none'",
               "embed-src 'none'",

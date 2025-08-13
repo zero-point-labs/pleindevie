@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { PrivacyNotice } from "@/components/ui/privacy-notice";
-import { ConsentManager } from "@/components/ui/consent-manager";
-import { Footer } from "@/components/layout/Footer";
-import { AnalyticsProvider } from "@/components/layout/AnalyticsProvider";
+import Footer from "@/components/layout/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,25 +14,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Home Renovation Services | Transform Your Space",
-  description: "Professional home renovation services. Kitchen remodels, bathroom upgrades, and complete home transformations. Get your free quote today!",
+  title: "Plein De Vie | Premium Barbershop in Nicosia, Cyprus",
+  description: "Experience the art of grooming at Plein De Vie. Premium barbershop services including haircuts, beard trims, and luxury treatments in Lakatamia, Nicosia.",
   keywords: [
-    "home renovation",
-    "kitchen remodel", 
-    "bathroom renovation",
-    "home improvement",
-    "construction",
-    "contractor"
+    "barbershop",
+    "haircut", 
+    "beard trim",
+    "barber",
+    "grooming",
+    "Nicosia",
+    "Cyprus",
+    "Lakatamia",
+    "Plein De Vie"
   ],
   openGraph: {
-    title: "Home Renovation Services | Transform Your Space",
-    description: "Professional home renovation services. Kitchen remodels, bathroom upgrades, and complete home transformations. Get your free quote today!",
+    title: "Plein De Vie | Premium Barbershop in Nicosia, Cyprus",
+    description: "Experience the art of grooming at Plein De Vie. Premium barbershop services including haircuts, beard trims, and luxury treatments in Lakatamia, Nicosia.",
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Home Renovation Services | Transform Your Space",
-    description: "Professional home renovation services. Kitchen remodels, bathroom upgrades, and complete home transformations. Get your free quote today!",
+    title: "Plein De Vie | Premium Barbershop in Nicosia, Cyprus",
+    description: "Experience the art of grooming at Plein De Vie. Premium barbershop services including haircuts, beard trims, and luxury treatments in Lakatamia, Nicosia.",
   },
 };
 
@@ -46,47 +46,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('consent', 'default', {
-                'ad_storage': 'denied',
-                'analytics_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied'
-              });
-            `,
-          }}
-        />
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-        ></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
-                send_page_view: false,
-              });
-            `,
-          }}
-        />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AnalyticsProvider />
         {children}
-        {/* GDPR Compliance Components */}
-        <PrivacyNotice />
-        {/* Footer links already exist; ensure ToS link present via Footer component */}
-        <ConsentManager />
         <Footer />
       </body>
     </html>

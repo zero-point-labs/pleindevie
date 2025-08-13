@@ -4,24 +4,26 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Brand Colors */
-  --brand-sage: #87a96b;
-  --brand-charcoal: #2c3e50;
-  --brand-sage-light: #9caf88;
-  --brand-sage-dark: #6b8a4f;
-  --brand-charcoal-light: #34495e;
-  --brand-charcoal-dark: #1a252f;
+  /* Brand Colors - Barbershop Theme */
+  --brand-black: #000000;
+  --brand-white: #ffffff;
+  --brand-blue: #3b82f6;
+  --brand-blue-light: #60a5fa;
+  --brand-blue-dark: #2563eb;
+  --brand-gray: #1f2937;
+  --brand-gray-light: #374151;
+  --brand-gray-dark: #111827;
   
-  /* Yellow Accent Colors */
-  --brand-yellow: #fbbf24;
-  --brand-yellow-light: #fcd34d;
-  --brand-yellow-dark: #f59e0b;
-  --brand-yellow-bright: #facc15;
+  /* Legacy Colors (keeping for compatibility) */
+  --brand-yellow: #3b82f6;
+  --brand-yellow-light: #60a5fa;
+  --brand-yellow-dark: #2563eb;
+  --brand-yellow-bright: #93c5fd;
 
   /* Semantic Colors - Using Brand Colors */
-  --primary: var(--brand-yellow);
-  --primary-foreground: #2c3e50;
-  --secondary: var(--brand-charcoal);
+  --primary: var(--brand-blue);
+  --primary-foreground: #ffffff;
+  --secondary: var(--brand-gray);
   --secondary-foreground: #ffffff;
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -262,4 +264,43 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Animations for Magic UI Components */
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+
+@keyframes spin-around {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes background-position-spin {
+  0%,
+  100% {
+    background-position: top center;
+  }
+  50% {
+    background-position: bottom center;
+  }
+}
+
+/* Tailwind Animation Classes */
+.animate-shimmer-slide {
+  animation: shimmer-slide var(--speed) ease-in-out infinite alternate;
+}
+
+.animate-spin-around {
+  animation: spin-around calc(var(--speed) * 2) infinite linear;
+}
+
+.animate-background-position-spin {
+  animation: background-position-spin 3000ms infinite ease-in-out;
 }

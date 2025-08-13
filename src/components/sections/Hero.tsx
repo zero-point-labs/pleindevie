@@ -1,17 +1,32 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CompareSlider } from '@/components/ui/compare-slider';
-import { BorderBeam } from '@/components/ui/border-beam';
-import { FloatingIcons } from '@/components/ui/floating-icons';
+import { SparklesText } from '@/components/ui/sparkles-text';
 import { ANIMATION_DURATION, ANIMATION_EASE } from '@/constants';
 import { useInView } from '@/hooks/useInView';
-import { useAnalytics } from '@/hooks/useAnalytics';
+
+import { Phone, MapPin, Clock, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const Hero = () => {
-  const { trackButtonClick } = useAnalytics();
-  const { ref: heroRef } = useInView({ trackSection: 'hero' });
+  const { ref: heroRef } = useInView();
+  
+  // Rotating text for subtitle
+  const [textIndex, setTextIndex] = useState(0);
+  const subtitleVariants = [
+    'Where Style Meets Perfection',
+    'Premium Grooming Experience',
+    'Your Signature Look Awaits',
+    'Crafted with Precision'
+  ];
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTextIndex((prev) => (prev + 1) % subtitleVariants.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [subtitleVariants.length]);
 
   // Animation variants for staggered text animations
   const containerVariants = {
@@ -56,234 +71,193 @@ const Hero = () => {
     },
   };
 
+
+
   return (
     <section 
       ref={heroRef}
       id="hero"
-      className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-gray-900 to-black"
-      aria-label="Hero section with company introduction and before/after renovation showcase"
+      className="relative min-h-screen overflow-hidden bg-black"
+      aria-label="Plein De Vie Barbershop Hero Section"
     >
-      {/* Dark textured background */}
-      <div 
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-yellow-500/5 via-transparent to-transparent" 
-        aria-hidden="true"
-      />
+      {/* Video Background */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            filter: 'contrast(1.1) saturate(1.1) brightness(0.9)',
+          }}
+        >
+          <source src="/barber-context/Video-426.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/50" />
+        
+        {/* Corner vignette overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-transparent to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-bl from-black/40 via-transparent to-black/40" />
+        
+        {/* Blue accent lighting effect */}
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 via-transparent to-transparent" />
+      </div>
       
-      {/* Animated yellow accent gradient */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-transparent to-yellow-500/5 animate-pulse" 
-        aria-hidden="true"
-      />
-      
-      {/* Subtle grid texture */}
-      <div 
-        className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" 
-        aria-hidden="true"
-      />
-      
-      {/* Floating Icons */}
-      <FloatingIcons />
+      {/* Animated blue light beams */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-blue-500/30 to-transparent animate-pulse" />
+        <div className="absolute top-0 right-1/3 w-px h-full bg-gradient-to-b from-transparent via-blue-500/20 to-transparent animate-pulse delay-1000" />
+      </div>
       
       <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex min-h-screen flex-col items-center justify-center gap-12 py-20 md:grid md:grid-cols-2 md:gap-16">
+        <div className="flex min-h-screen flex-col items-center justify-center py-20">
           
-          {/* Left Column - Text Content */}
+          {/* Main Content Container - Better spaced from top */}
           <motion.div
-            className="flex flex-col justify-center space-y-8 text-center md:text-left order-1 md:order-1"
+            className="flex flex-col items-center text-center max-w-4xl mt-8"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            {/* Main Headline */}
-            <motion.h1
-              className="text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl"
-              variants={itemVariants}
-              role="banner"
-            >
-              Transform Your{' '}
-              <span className="bg-gradient-to-r from-[#fbbf24] to-[#fcd34d] bg-clip-text text-transparent">
-                Space,
-              </span>
-              {' '}Elevate Your Life
-            </motion.h1>
-
-            {/* Subheading */}
-            <motion.p
-              className="text-lg text-gray-300 sm:text-xl lg:text-2xl"
-              variants={itemVariants}
-            >
-              Professional home renovations that transform your space in{' '}
-              <span className="font-semibold text-[#fbbf24]">30 days or less</span>.
-              From outdated to outstanding, we bring your vision to life.
-            </motion.p>
-
-            {/* Key Benefits */}
+            {/* Logo/Brand Name with Sparkle Effect */}
             <motion.div
-              className="flex flex-wrap justify-center gap-4 md:justify-start"
               variants={itemVariants}
+              className="relative mb-6"
             >
-              <div className="flex items-center space-x-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-                <div className="h-2 w-2 rounded-full bg-[#fbbf24]" />
-                <span className="text-sm font-medium text-white">5-Year Warranty</span>
-              </div>
-              <div className="flex items-center space-x-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-                <div className="h-2 w-2 rounded-full bg-[#fbbf24]" />
-                <span className="text-sm font-medium text-white">Licensed & Insured</span>
-              </div>
-              <div className="flex items-center space-x-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-                <div className="h-2 w-2 rounded-full bg-[#fbbf24]" />
-                <span className="text-sm font-medium text-white">Free Consultation</span>
-              </div>
+              <SparklesText
+                className="text-6xl sm:text-7xl lg:text-8xl font-bold text-white uppercase tracking-wider"
+                colors={{ first: "#3b82f6", second: "#60a5fa" }}
+                sparklesCount={6}
+              >
+                Plein De Vie
+              </SparklesText>
+              {/* Animated underline */}
+              <motion.div 
+                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent"
+                initial={{ width: 0 }}
+                animate={{ width: '10rem' }}
+                transition={{ duration: 1.5, delay: 0.5 }}
+              />
             </motion.div>
 
-            {/* CTA Buttons */}
+            {/* Rotating Tagline with Fade Effect */}
             <motion.div
-              className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
-              variants={buttonVariants}
-              role="group"
-              aria-label="Call to action buttons"
+              variants={itemVariants}
+              className="relative mb-10 h-10"
             >
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={textIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-xl sm:text-2xl lg:text-3xl font-light tracking-wide leading-relaxed whitespace-nowrap absolute inset-0 flex items-center justify-center"
+                >
+                  <span className="bg-gradient-to-r from-gray-300 via-white to-gray-300 bg-clip-text text-transparent">
+                    {subtitleVariants[textIndex]}
+                  </span>
+                </motion.p>
+              </AnimatePresence>
+              
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent blur-xl" />
+            </motion.div>
+
+            {/* Enhanced CTA Buttons */}
+            <motion.div
+              className="flex flex-col sm:flex-row gap-4 mb-16"
+              variants={buttonVariants}
+            >
+              {/* Primary Book Appointment Button */}
               <Button
                 size="lg"
-                className="group relative overflow-hidden bg-[#fbbf24] text-[#2C3E50] hover:bg-[#fcd34d] transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:ring-offset-2 focus:ring-offset-[#2C3E50]"
+                className="group relative overflow-hidden bg-blue-600 hover:bg-blue-700 text-white border-0 px-10 py-4 text-lg font-semibold transition-all duration-300 transform hover:scale-105 rounded-lg shadow-xl"
                 onClick={() => {
-                  trackButtonClick('Get Free Quote');
-                  // Scroll to contact form or open modal
-                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                  window.open('https://pleindevie.setmore.com/?fbclid=PAZXh0bgNhZW0CMTEAAadRNjEz4yqLV0E29vgg08nRtjNk9S4igPVKoQKzeztGj2I27sWxFnes7fKsPw_aem_xBfghmvbmbu272QiHfbQaA', '_blank');
                 }}
-                aria-label="Get a free renovation quote"
               >
-                <span className="relative z-10 font-semibold">Get Free Quote</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <Calendar className="mr-2 h-5 w-5" />
+                <span className="relative z-10">Book Appointment</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
               
+              {/* Secondary Call Button */}
               <Button
                 variant="outline"
                 size="lg"
-                className="border-[#fbbf24] text-[#fbbf24] hover:bg-[#fbbf24] hover:text-[#2C3E50] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:ring-offset-2 focus:ring-offset-[#2C3E50]"
+                className="border-2 border-white/40 text-white hover:bg-white/5 hover:border-white/60 bg-transparent backdrop-blur-sm px-10 py-4 text-lg font-medium transition-all duration-300 rounded-lg"
                 onClick={() => {
-                  trackButtonClick('View Our Work');
-                  // Scroll to portfolio section
-                  document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' });
+                  window.location.href = 'tel:+35797825899';
                 }}
-                aria-label="View our renovation portfolio"
               >
-                View Our Work
+                <Phone className="mr-2 h-5 w-5" />
+                Call Now
               </Button>
             </motion.div>
 
-            {/* Trust Indicators */}
+            {/* Contact Info Bar - Simple and Clean */}
             <motion.div
-              className="flex flex-col items-center space-y-2 md:items-start"
+              className="flex flex-wrap justify-center gap-8 mb-8 text-sm text-gray-400"
               variants={itemVariants}
-              role="region"
-              aria-label="Customer reviews and ratings"
             >
-              <div className="flex items-center space-x-1" role="img" aria-label="5 out of 5 stars rating">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className="h-5 w-5 text-[#fbbf24]"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    aria-hidden="true"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <p className="text-sm text-gray-400">
-                Trusted by 500+ homeowners • 4.9/5 rating
-              </p>
-            </motion.div>
-          </motion.div>
-
-          {/* Right Column - Before/After Slider */}
-          <motion.div
-            className="flex items-center justify-center order-2 md:order-2 w-full max-w-full"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{
-              duration: ANIMATION_DURATION.slower,
-              delay: 0.4,
-              ease: ANIMATION_EASE.easeOut,
-            }}
-          >
-            <div className="relative w-full max-w-[350px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[600px] mx-auto">
-              {/* Decorative elements */}
-              <div className="absolute -top-6 -left-6 h-32 w-32 rounded-full bg-[#fbbf24]/20 blur-xl" aria-hidden="true" />
-              <div className="absolute -bottom-6 -right-6 h-40 w-40 rounded-full bg-[#fbbf24]/10 blur-2xl" aria-hidden="true" />
-              
-              {/* Compare Slider Component with Border Beam */}
-              <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl w-full h-[280px] sm:h-[320px] md:h-[400px] lg:h-[450px]">
-                <CompareSlider
-                  beforeImage="/after.jpg"
-                  afterImage="/before.jpg"
-                  beforeLabel="Before"
-                  afterLabel="After"
-                  className="w-full h-full rounded-2xl"
-                />
-                {/* Animated Border Beam */}
-                <BorderBeam
-                  size={200}
-                  duration={6}
-                  delay={0}
-                  colorFrom="#fbbf24"
-                  colorTo="#fcd34d"
-                  borderWidth={3}
-                  className="opacity-90"
-                />
-                {/* Additional shiny effect - second beam */}
-                <BorderBeam
-                  size={150}
-                  duration={4}
-                  delay={1}
-                  colorFrom="#FFFFFF"
-                  colorTo="#fbbf24"
-                  borderWidth={1}
-                  className="opacity-60"
-                  reverse={true}
-                />
-              </div>
-              
-              {/* Floating badge */}
-              <div 
-                className="absolute -bottom-6 sm:-bottom-8 left-1/2 transform -translate-x-1/2 bg-[#fbbf24] text-[#2C3E50] px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold text-xs sm:text-sm shadow-lg z-30"
-                role="note"
-                aria-label="Renovation completion time"
+              <a 
+                href="tel:+35797825899"
+                className="flex items-center gap-2 hover:text-white transition-colors"
               >
-                30-Day Transformation
+                <Phone className="h-4 w-4" />
+                <span>97 825899</span>
+              </a>
+              <a 
+                href="https://maps.google.com/?q=Eleftherias+21+Lakatamia+2304+Nicosia+Cyprus"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-white transition-colors"
+              >
+                <MapPin className="h-4 w-4" />
+                <span>Eleftherias 21, Lakatamia</span>
+              </a>
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-green-400" />
+                <span className="text-green-400">Open Now</span>
               </div>
-            </div>
+            </motion.div>
+
+            {/* Premium Badge - Better spaced */}
+            <motion.div
+              className="mb-8"
+              variants={itemVariants}
+            >
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600/20 to-blue-500/20 backdrop-blur-md border border-blue-500/30 rounded-full px-6 py-3">
+                <span className="text-xs uppercase tracking-wider text-blue-300">Premium Barbershop</span>
+                <span className="text-white">•</span>
+                <span className="text-xs text-gray-300">Est. Nicosia</span>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 z-10"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 0.5 }}
-        role="button"
-        tabIndex={0}
-        aria-label="Scroll down to explore more content"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-          }
-        }}
         onClick={() => {
           window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
         }}
       >
         <div className="flex flex-col items-center space-y-2 cursor-pointer">
-          <span className="text-xs text-gray-400 uppercase tracking-wider">Scroll to explore</span>
+          <span className="text-xs text-gray-400 uppercase tracking-wider">Discover More</span>
           <motion.div
-            className="h-6 w-4 border-2 border-gray-400 rounded-full flex justify-center"
+            className="h-6 w-4 border-2 border-gray-600 rounded-full flex justify-center"
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            aria-hidden="true"
           >
             <div className="w-1 h-2 bg-gray-400 rounded-full mt-1" />
           </motion.div>

@@ -2,23 +2,33 @@
 
 import Header from '@/components/layout/Header';
 import Hero from '@/components/sections/Hero';
-import LeadCaptureForm from '@/components/sections/LeadCaptureForm';
-import { PrivacyNotice } from '@/components/ui/privacy-notice';
+import About from '@/components/sections/About';
+import Services from '@/components/sections/Services';
+import WorkingHours from '@/components/sections/WorkingHours';
+import ContactForm from '@/components/sections/ContactForm';
+
 export default function Home() {
 
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-[#2C3E50]">
+      <main className="min-h-screen">
         <Hero />
         
-        {/* Lead Capture Form Section - Now full screen with its own background */}
-        <LeadCaptureForm />
+        {/* About Section - Right after Hero */}
+        <About />
         
-        {/* Additional sections will be added here as we progress through the tasks */}
+        {/* Services Section */}
+        <Services />
+        
+        {/* Working Hours Section - Continues from Services */}
+        <WorkingHours />
+        
+        {/* Contact Form Section */}
+        <ContactForm />
+        
       </main>
-      
-      {/* Privacy Notice is now handled globally in RootLayout */}
+
     </>
   );
 }

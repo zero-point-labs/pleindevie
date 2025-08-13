@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Home, Hammer } from 'lucide-react';
+import { Menu, X, Scissors, Phone } from 'lucide-react';
 import { ANIMATION_DURATION, ANIMATION_EASE } from '@/constants';
+import Image from 'next/image';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -20,13 +21,12 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Navigation items
+  // Navigation items for barbershop
   const navItems = [
     { name: 'Home', href: '#hero', id: 'hero' },
+    { name: 'About', href: '#about', id: 'about' },
     { name: 'Services', href: '#services', id: 'services' },
-    { name: 'Portfolio', href: '#portfolio', id: 'portfolio' },
-    { name: 'Process', href: '#process', id: 'process' },
-    { name: 'Testimonials', href: '#testimonials', id: 'testimonials' },
+    { name: 'Gallery', href: '#gallery', id: 'gallery' },
     { name: 'Contact', href: '#contact', id: 'contact' },
   ];
 
@@ -42,22 +42,21 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   };
 
-  // Handle get quote button click
-  const handleGetQuote = () => {
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      // If contact section doesn't exist yet, scroll to bottom
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }
+  // Handle book appointment button click
+  const handleBookAppointment = () => {
+    window.open('https://pleindevie.setmore.com/?fbclid=PAZXh0bgNhZW0CMTEAAadRNjEz4yqLV0E29vgg08nRtjNk9S4igPVKoQKzeztGj2I27sWxFnes7fKsPw_aem_xBfghmvbmbu272QiHfbQaA', '_blank');
+  };
+
+  // Handle call button click
+  const handleCallNow = () => {
+    window.location.href = 'tel:+35797825899';
   };
 
   return (
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-[#2C3E50]/95 backdrop-blur-lg shadow-lg border-b border-[#fbbf24]/20'
+          ? 'bg-black/95 backdrop-blur-lg shadow-lg border-b border-blue-500/20'
           : 'bg-transparent'
       }`}
       initial={{ y: -100, opacity: 0 }}
@@ -78,23 +77,28 @@ const Header = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {/* Logo Icon */}
+            {/* Logo Image */}
             <div className="relative">
-              <div className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-[#fbbf24] to-[#fcd34d] rounded-xl shadow-lg">
-                <Home className="w-5 h-5 lg:w-6 lg:h-6 text-[#2C3E50]" />
-                <Hammer className="w-3 h-3 lg:w-4 lg:h-4 text-[#2C3E50] absolute -bottom-1 -right-1" />
+              <div className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-600 to-blue-500 rounded-full shadow-lg overflow-hidden">
+                <Image
+                  src="/barber-context/logo.jpg"
+                  alt="Plein De Vie Logo"
+                  width={48}
+                  height={48}
+                  className="object-cover rounded-full"
+                />
               </div>
-              {/* Glow effect */}
-              <div className="absolute inset-0 bg-[#fbbf24]/30 rounded-xl blur-lg -z-10" />
+              {/* Blue glow effect */}
+              <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-lg -z-10" />
             </div>
             
             {/* Logo Text */}
             <div className="flex flex-col">
               <span className="text-lg lg:text-xl font-bold text-white leading-tight">
-                RenovatePro
+                Plein De Vie
               </span>
-              <span className="text-xs text-[#fbbf24] font-medium leading-tight">
-                Transform • Elevate • Inspire
+              <span className="text-xs text-blue-400 font-medium leading-tight">
+                Premium Barbershop
               </span>
             </div>
           </motion.div>
@@ -116,14 +120,14 @@ const Header = () => {
               >
                 {item.name}
                 {/* Hover underline */}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#fbbf24] to-[#fcd34d] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-300 group-hover:w-full" />
               </motion.button>
             ))}
           </nav>
 
-          {/* Desktop CTA Button */}
+          {/* Desktop CTA Buttons */}
           <motion.div
-            className="hidden lg:block"
+            className="hidden lg:flex items-center space-x-3"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{
@@ -132,12 +136,24 @@ const Header = () => {
               ease: ANIMATION_EASE.bounce,
             }}
           >
+            {/* Call Button */}
             <Button
-              onClick={handleGetQuote}
-              className="group relative overflow-hidden bg-[#fbbf24] text-[#2C3E50] hover:bg-[#fcd34d] transition-all duration-300 transform hover:scale-105 font-semibold px-6 py-2.5 shadow-lg hover:shadow-xl"
+              onClick={handleCallNow}
+              variant="outline"
+              className="group border-blue-500/50 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 transition-all duration-300 font-medium px-4 py-2"
             >
-              <span className="relative z-10">Get Free Quote</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#fcd34d] to-[#fbbf24] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <Phone className="w-4 h-4 mr-2" />
+              <span className="relative z-10">Call</span>
+            </Button>
+            
+            {/* Book Appointment Button */}
+            <Button
+              onClick={handleBookAppointment}
+              className="group relative overflow-hidden bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 font-semibold px-6 py-2.5 shadow-lg hover:shadow-xl"
+            >
+              <Scissors className="w-4 h-4 mr-2" />
+              <span className="relative z-10">Book Now</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               {/* Shine effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
             </Button>
@@ -166,7 +182,7 @@ const Header = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            className="lg:hidden absolute top-full left-0 right-0 bg-[#2C3E50]/98 backdrop-blur-lg border-b border-[#fbbf24]/20 shadow-xl"
+            className="lg:hidden absolute top-full left-0 right-0 bg-black/98 backdrop-blur-lg border-b border-blue-500/20 shadow-xl"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -178,7 +194,7 @@ const Header = () => {
                 <motion.button
                   key={item.name}
                   onClick={() => scrollToSection(item.id)}
-                  className="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-[#fbbf24]/10 rounded-lg transition-all duration-200 font-medium"
+                  className="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-blue-500/10 rounded-lg transition-all duration-200 font-medium"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{
@@ -191,9 +207,9 @@ const Header = () => {
                 </motion.button>
               ))}
               
-              {/* Mobile CTA Button */}
+              {/* Mobile CTA Buttons */}
               <motion.div
-                className="pt-4 border-t border-[#fbbf24]/20"
+                className="pt-4 border-t border-blue-500/20 space-y-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
@@ -202,10 +218,20 @@ const Header = () => {
                 }}
               >
                 <Button
-                  onClick={handleGetQuote}
-                  className="w-full bg-[#fbbf24] text-[#2C3E50] hover:bg-[#fcd34d] transition-all duration-300 font-semibold py-3 shadow-lg"
+                  onClick={handleBookAppointment}
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 font-semibold py-3 shadow-lg"
                 >
-                  Get Free Quote
+                  <Scissors className="w-4 h-4 mr-2" />
+                  Book Appointment
+                </Button>
+                
+                <Button
+                  onClick={handleCallNow}
+                  variant="outline"
+                  className="w-full border-blue-500/50 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 transition-all duration-300 font-medium py-3"
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call Now
                 </Button>
               </motion.div>
             </div>

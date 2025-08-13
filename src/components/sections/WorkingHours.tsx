@@ -59,7 +59,7 @@ const WorkingHours = () => {
             >
               Visit Us Today
             </SparklesText>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-400 mx-auto leading-relaxed max-w-2xl px-2">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-400 leading-relaxed">
               Our doors are open and our master barbers are ready to give you the perfect look
             </p>
           </motion.div>

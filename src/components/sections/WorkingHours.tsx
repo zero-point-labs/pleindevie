@@ -41,25 +41,25 @@ const WorkingHours = () => {
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {/* Section Header - Mobile Optimized */}
         <BlurFade delay={0.1} inView>
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-sm font-semibold text-blue-400 uppercase tracking-wider mb-4">
+            <h2 className="text-sm font-semibold text-blue-400 uppercase tracking-wider mb-3 sm:mb-4">
               Open Hours
             </h2>
             <SparklesText
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6"
               colors={{ first: "#3b82f6", second: "#60a5fa" }}
               sparklesCount={4}
             >
               Visit Us Today
             </SparklesText>
-            <p className="text-lg sm:text-xl text-gray-400 mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-400 mx-auto leading-relaxed max-w-2xl px-2">
               Our doors are open and our master barbers are ready to give you the perfect look
             </p>
           </motion.div>
@@ -72,19 +72,19 @@ const WorkingHours = () => {
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Card with gradient border effect */}
-            <div className="relative bg-gradient-to-br from-blue-600/20 to-blue-500/20 p-[2px] rounded-3xl">
-              <div className="relative bg-gray-800/90 backdrop-blur-sm rounded-3xl p-8 md:p-12">
-                {/* Decorative elements */}
-                <div className="absolute top-8 right-8 text-blue-500/20">
-                  <Scissors className="w-24 h-24 rotate-45" />
+            {/* Card with gradient border effect - Mobile Optimized */}
+            <div className="relative bg-gradient-to-br from-blue-600/20 to-blue-500/20 p-[1px] sm:p-[2px] rounded-2xl sm:rounded-3xl">
+              <div className="relative bg-gray-800/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-12">
+                {/* Decorative elements - Hidden on mobile for cleaner look */}
+                <div className="hidden sm:block absolute top-8 right-8 text-blue-500/20">
+                  <Scissors className="w-16 h-16 lg:w-24 lg:h-24 rotate-45" />
                 </div>
-                <div className="absolute bottom-8 left-8 text-blue-500/10">
-                  <Scissors className="w-32 h-32 -rotate-12" />
+                <div className="hidden sm:block absolute bottom-8 left-8 text-blue-500/10">
+                  <Scissors className="w-20 h-20 lg:w-32 lg:h-32 -rotate-12" />
                 </div>
 
-                {/* Hours Grid */}
-                <div className="relative z-10 space-y-4">
+                {/* Hours Grid - Mobile First Design */}
+                <div className="relative z-10 space-y-3">
                   {hours.map((schedule, index) => (
                     <motion.div
                       key={schedule.day}
@@ -92,49 +92,55 @@ const WorkingHours = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.4 + index * 0.1 }}
                       className={cn(
-                        "flex items-center justify-between p-4 rounded-xl transition-all duration-300",
+                        "p-3 sm:p-4 rounded-xl transition-all duration-300",
                         todayIndex === index 
                           ? "bg-blue-600/20 border border-blue-500/50" 
                           : "hover:bg-gray-700/50",
                         !schedule.isOpen && "opacity-60"
                       )}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "p-2 rounded-lg",
-                          todayIndex === index 
-                            ? "bg-blue-600/30 text-blue-400" 
-                            : "bg-gray-700/50 text-gray-400"
-                        )}>
-                          <Calendar className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <h3 className={cn(
-                            "text-lg font-semibold",
-                            todayIndex === index ? "text-white" : "text-gray-300"
+                      {/* Mobile Layout: Stack vertically on very small screens */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                        
+                        {/* Left side: Icon + Day */}
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "p-2 rounded-lg flex-shrink-0",
+                            todayIndex === index 
+                              ? "bg-blue-600/30 text-blue-400" 
+                              : "bg-gray-700/50 text-gray-400"
                           )}>
-                            {schedule.day}
-                          </h3>
-                          {todayIndex === index && (
-                            <span className="text-xs text-blue-400 font-medium">TODAY</span>
-                          )}
+                            <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className={cn(
+                              "text-base sm:text-lg font-semibold",
+                              todayIndex === index ? "text-white" : "text-gray-300"
+                            )}>
+                              {schedule.day}
+                            </h3>
+                            {todayIndex === index && (
+                              <span className="text-xs text-blue-400 font-medium">TODAY</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        {schedule.isOpen && (
-                          <Clock className="w-4 h-4 text-gray-500" />
-                        )}
-                        <span className={cn(
-                          "text-lg font-medium",
-                          schedule.isOpen 
-                            ? todayIndex === index 
-                              ? "text-blue-400" 
-                              : "text-gray-400"
-                            : "text-red-400"
-                        )}>
-                          {schedule.time}
-                        </span>
+                        
+                        {/* Right side: Time */}
+                        <div className="flex items-center gap-2 sm:gap-3 ml-11 sm:ml-0">
+                          {schedule.isOpen && (
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 flex-shrink-0" />
+                          )}
+                          <span className={cn(
+                            "text-sm sm:text-base lg:text-lg font-medium whitespace-nowrap",
+                            schedule.isOpen 
+                              ? todayIndex === index 
+                                ? "text-blue-400" 
+                                : "text-gray-400"
+                              : "text-red-400"
+                          )}>
+                            {schedule.time}
+                          </span>
+                        </div>
                       </div>
                     </motion.div>
                   ))}
@@ -142,14 +148,14 @@ const WorkingHours = () => {
 
                 {/* Special Notice */}
                 <motion.div
-                  className="mt-8 p-4 bg-blue-600/10 border border-blue-500/30 rounded-xl"
+                  className="mt-6 sm:mt-8 p-3 sm:p-4 bg-blue-600/10 border border-blue-500/30 rounded-lg sm:rounded-xl"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.2 }}
                 >
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-blue-400" />
-                    <p className="text-gray-300">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm sm:text-base text-gray-300">
                       Walk-ins welcome! Appointments recommended for weekends.
                     </p>
                   </div>
@@ -168,20 +174,20 @@ const WorkingHours = () => {
           </motion.div>
         </BlurFade>
 
-        {/* Bottom CTA */}
+        {/* Bottom CTA - Mobile Optimized */}
         <BlurFade delay={0.8} inView>
           <motion.div 
-            className="text-center mt-12"
+            className="text-center mt-8 sm:mt-10 lg:mt-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
           >
-            <p className="text-gray-400 mb-2">Ready for your transformation?</p>
+            <p className="text-sm sm:text-base text-gray-400 mb-2 sm:mb-3">Ready for your transformation?</p>
             <a 
               href="tel:+35797825899"
-              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-lg font-medium"
+              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-base sm:text-lg font-medium"
             >
-              <Clock className="w-5 h-5" />
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
               Call Now: 97 825899
             </a>
           </motion.div>

@@ -93,7 +93,7 @@ const Hero = () => {
             filter: 'contrast(1.1) saturate(1.1) brightness(0.9)',
           }}
         >
-          <source src="/barber-context/Video-426.mp4" type="video/mp4" />
+          <source src="/video-backround-compressed.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         {/* Dark overlay for text readability */}

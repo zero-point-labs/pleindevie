@@ -15,10 +15,10 @@ const Hero = () => {
   // Rotating text for subtitle
   const [textIndex, setTextIndex] = useState(0);
   const subtitleVariants = [
-    'Where Style Meets Perfection',
-    'Premium Grooming Experience',
-    'Your Signature Look Awaits',
-    'Crafted with Precision'
+    'Όπου το Στυλ Συναντά την Τελειότητα',
+    'Premium Εμπειρία Περιποίησης',
+    'Το Signature Look σας σας Περιμένει',
+    'Κατασκευασμένο με Ακρίβεια'
   ];
   
   useEffect(() => {
@@ -182,7 +182,7 @@ const Hero = () => {
                 }}
               >
                 <Calendar className="mr-2 h-5 w-5" />
-                <span className="relative z-10">Book Appointment</span>
+                <span className="relative z-10">Κλείστε Ραντεβού</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
               
@@ -196,7 +196,7 @@ const Hero = () => {
                 }}
               >
                 <Phone className="mr-2 h-5 w-5" />
-                Call Now
+                Καλέστε Τώρα
               </Button>
             </motion.div>
 
@@ -223,7 +223,7 @@ const Hero = () => {
               </a>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-green-400" />
-                <span className="text-green-400">Open Now</span>
+                <span className="text-green-400">Ανοιχτά Τώρα</span>
               </div>
             </motion.div>
 
@@ -233,9 +233,9 @@ const Hero = () => {
               variants={itemVariants}
             >
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600/20 to-blue-500/20 backdrop-blur-md border border-blue-500/30 rounded-full px-6 py-3">
-                <span className="text-xs uppercase tracking-wider text-blue-300">Premium Barbershop</span>
+                <span className="text-xs uppercase tracking-wider text-blue-300">Premium Κουρείο</span>
                 <span className="text-white">•</span>
-                <span className="text-xs text-gray-300">Est. Nicosia</span>
+                <span className="text-xs text-gray-300">Λακατάμια, Λευκωσία</span>
               </div>
             </motion.div>
           </motion.div>
@@ -253,7 +253,7 @@ const Hero = () => {
         }}
       >
         <div className="flex flex-col items-center space-y-2 cursor-pointer">
-          <span className="text-xs text-gray-400 uppercase tracking-wider">Discover More</span>
+          <span className="text-xs text-gray-400 uppercase tracking-wider">Ανακαλύψτε Περισσότερα</span>
           <motion.div
             className="h-6 w-4 border-2 border-gray-600 rounded-full flex justify-center"
             animate={{ y: [0, 8, 0] }}

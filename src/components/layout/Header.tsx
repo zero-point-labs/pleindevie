@@ -23,11 +23,10 @@ const Header = () => {
 
   // Navigation items for barbershop
   const navItems = [
-    { name: 'Home', href: '#hero', id: 'hero' },
-    { name: 'About', href: '#about', id: 'about' },
-    { name: 'Services', href: '#services', id: 'services' },
-    { name: 'Gallery', href: '#gallery', id: 'gallery' },
-    { name: 'Contact', href: '#contact', id: 'contact' },
+    { name: 'Αρχική', href: '#hero', id: 'hero' },
+    { name: 'Σχετικά', href: '#about', id: 'about' },
+    { name: 'Υπηρεσίες', href: '#services', id: 'services' },
+    { name: 'Επικοινωνία', href: '#contact', id: 'contact' },
   ];
 
   // Smooth scroll function
@@ -98,7 +97,7 @@ const Header = () => {
                 Plein De Vie
               </span>
               <span className="text-xs text-blue-400 font-medium leading-tight">
-                Premium Barbershop
+                Premium Κουρείο
               </span>
             </div>
           </motion.div>
@@ -143,7 +142,7 @@ const Header = () => {
               className="group border-blue-500/50 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 transition-all duration-300 font-medium px-4 py-2"
             >
               <Phone className="w-4 h-4 mr-2" />
-              <span className="relative z-10">Call</span>
+              <span className="relative z-10">Κλήση</span>
             </Button>
             
             {/* Book Appointment Button */}
@@ -152,7 +151,7 @@ const Header = () => {
               className="group relative overflow-hidden bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 font-semibold px-6 py-2.5 shadow-lg hover:shadow-xl"
             >
               <Scissors className="w-4 h-4 mr-2" />
-              <span className="relative z-10">Book Now</span>
+              <span className="relative z-10">Κλείστε Τώρα</span>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               {/* Shine effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
@@ -222,7 +221,7 @@ const Header = () => {
                   className="w-full bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 font-semibold py-3 shadow-lg"
                 >
                   <Scissors className="w-4 h-4 mr-2" />
-                  Book Appointment
+                  Κλείστε Ραντεβού
                 </Button>
                 
                 <Button
@@ -231,7 +230,7 @@ const Header = () => {
                   className="w-full border-blue-500/50 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500 transition-all duration-300 font-medium py-3"
                 >
                   <Phone className="w-4 h-4 mr-2" />
-                  Call Now
+                  Καλέστε Τώρα
                 </Button>
               </motion.div>
             </div>

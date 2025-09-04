@@ -11,10 +11,10 @@ import { Award, Users, Calendar, Star } from 'lucide-react';
 
 const About = () => {
   const stats = [
-    { icon: Award, value: '15+', label: 'Years Experience' },
-    { icon: Users, value: '5000+', label: 'Happy Clients' },
-    { icon: Star, value: '4.9', label: 'Rating' },
-    { icon: Calendar, value: '7', label: 'Days a Week' },
+    { icon: Award, value: '18+', label: 'Χρόνια Εμπειρίας' },
+    { icon: Users, value: '500+', label: 'Ικανοποιημένοι Πελάτες' },
+    { icon: Star, value: '4.9', label: 'Βαθμολογία' },
+    { icon: Calendar, value: '5', label: 'Μέρες την Εβδομάδα' },
   ];
 
   return (
@@ -44,28 +44,21 @@ const About = () => {
             <BlurFade delay={0.3} inView>
               <div className="space-y-4">
                 <h2 className="text-sm font-semibold text-blue-600 uppercase tracking-wider">
-                  About Plein De Vie
+                  Σχετικά με εμάς
                 </h2>
                 <h3 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
-                  Where Modern Style Meets{' '}
-                  <span className="text-blue-600">Traditional Craft</span>
+                  Όπου το Μοντέρνο Στυλ Συναντά{' '}
+                  <span className="text-blue-600">την Παραδοσιακή Τέχνη</span>
                 </h3>
               </div>
             </BlurFade>
 
             <BlurFade delay={0.4} inView>
               <p className="text-lg text-gray-600 leading-relaxed">
-                At Plein De Vie, we believe that a great haircut is more than just a service—it&apos;s an art form. 
-                Our barbershop combines the timeless traditions of classic barbering with contemporary techniques 
-                and modern aesthetics.
-              </p>
-            </BlurFade>
-
-            <BlurFade delay={0.5} inView>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Located in the heart of Lakatamia, our space features sleek black walls, pristine white floors, 
-                and signature blue lighting that creates an atmosphere of sophistication and relaxation. 
-                Every detail is crafted to provide you with an exceptional grooming experience.
+                Το κουρείο μας ιδρύθηκε το 2004 από τους γονείς του Χρίστου και γρήγορα ξεχώρισε κερδίζοντας 
+                την εμπιστοσύνη της τοπικής κοινότητας. Το 2022, ο Χρίστος ανακαίνισε τον χώρο και τον μετέτρεψε 
+                σε ένα σύγχρονο barbershop, που σήμερα θεωρείται από τα καλύτερα στη Λευκωσία, προσφέροντας 
+                στυλ, ποιότητα και μοναδική εμπειρία περιποίησης.
               </p>
             </BlurFade>
 
@@ -92,9 +85,9 @@ const About = () => {
                   transition={{ delay: 0.5, type: "spring" }}
                 >
                   <div className="text-center">
-                    <div className="text-4xl font-bold">15+</div>
-                    <div className="text-sm">Years of</div>
-                    <div className="text-sm">Excellence</div>
+                    <div className="text-4xl font-bold">18+</div>
+                    <div className="text-sm">Χρόνια</div>
+                    <div className="text-sm">Αριστείας</div>
                   </div>
                 </motion.div>
               </div>
@@ -133,7 +126,7 @@ const About = () => {
                     window.open('https://pleindevie.setmore.com/?fbclid=PAZXh0bgNhZW0CMTEAAadRNjEz4yqLV0E29vgg08nRtjNk9S4igPVKoQKzeztGj2I27sWxFnes7fKsPw_aem_xBfghmvbmbu272QiHfbQaA', '_blank');
                   }}
                 >
-                  Book Your Experience
+                  Κλείστε Ραντεβού
                 </Button>
                 <Button
                   variant="outline"
@@ -143,7 +136,7 @@ const About = () => {
                     document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
-                  View Services
+                  Δείτε τις Υπηρεσίες
                 </Button>
               </div>
             </BlurFade>
@@ -172,9 +165,9 @@ const About = () => {
                 transition={{ delay: 0.5, type: "spring" }}
               >
                 <div className="text-center">
-                  <div className="text-4xl font-bold">15+</div>
-                  <div className="text-sm">Years of</div>
-                  <div className="text-sm">Excellence</div>
+                  <div className="text-4xl font-bold">18+</div>
+                  <div className="text-sm">Χρόνια</div>
+                  <div className="text-sm">Αριστείας</div>
                 </div>
               </motion.div>
             </div>
@@ -186,11 +179,11 @@ const About = () => {
           <div className="mt-20 text-center">
             <div className="max-w-4xl mx-auto px-6">
               <blockquote className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-700 italic leading-relaxed">
-                &ldquo;Excellence is not a skill, it&apos;s an attitude. At Plein De Vie, 
-                we bring that attitude to every cut, every shave, and every client.&rdquo;
+                &ldquo;Η αριστεία δεν είναι μια ικανότητα, είναι στάση ζωής. Στο Plein De Vie, 
+                φέρνουμε αυτή τη στάση σε κάθε κούρεμα, κάθε ξύρισμα και κάθε πελάτη.&rdquo;
               </blockquote>
               <cite className="mt-6 block text-lg text-gray-500 not-italic font-medium">
-                — The Plein De Vie Team
+                — Η Ομάδα του Plein De Vie
               </cite>
             </div>
           </div>

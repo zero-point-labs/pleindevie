@@ -9,46 +9,46 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
-    { name: 'Home', href: '#hero' },
-    { name: 'About', href: '#about' },
-    { name: 'Services', href: '#services' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Αρχική', href: '#hero' },
+    { name: 'Σχετικά', href: '#about' },
+    { name: 'Υπηρεσίες', href: '#services' },
+    { name: 'Επικοινωνία', href: '#contact' },
   ];
 
-  const services = [
-    'Classic Haircut',
-    'Beard Trim & Shape',
-    'Premium Experience',
-    'Hot Shave',
-    'Hair Styling',
-    'Face Mask Treatment',
+  const serviceFeatures = [
+    'Κοπή Μαλλιών με Ακρίβεια',
+    'Κούρεμα & Σχηματισμός Γενιού',
+    'Σαμπουάν & Μαλακτικό',
+    'Styling με Premium Προϊόντα',
+    'Μάσκα Προσώπου (επιλογή)',
+    'Κερί Styling (επιλογή)',
   ];
 
   const contactInfo = [
     {
       icon: Phone,
-      label: 'Phone',
+      label: 'Τηλέφωνο',
       value: '+357 97 825899',
       href: 'tel:+35797825899',
     },
     {
       icon: MapPin,
-      label: 'Address',
+      label: 'Διεύθυνση',
       value: 'Eleftherias 21, Lakatamia 2304, Nicosia, Cyprus',
       href: 'https://maps.google.com/?q=Eleftherias+21+Lakatamia+2304+Nicosia+Cyprus',
     },
     {
       icon: Mail,
-      label: 'Email',
+      label: 'E-mail',
       value: 'pleindeviepleindevie@gmail.com',
       href: 'mailto:pleindeviepleindevie@gmail.com',
     },
   ];
 
   const workingHours = [
-    { day: 'Mon - Fri', time: '09:00 - 19:00' },
-    { day: 'Saturday', time: '09:00 - 16:00' },
-    { day: 'Sunday', time: 'Closed' },
+    { day: 'Τρί - Παρ', time: '09:00 - 19:00' },
+    { day: 'Σάββατο', time: '09:00 - 16:00' },
+    { day: 'Δευ - Κυρ', time: 'Κλειστό' },
   ];
 
   return (
@@ -82,13 +82,13 @@ const Footer = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">Plein De Vie</h3>
-                    <p className="text-sm text-blue-400">Premium Barbershop</p>
+                    <p className="text-sm text-blue-400">Premium Κουρείο</p>
                   </div>
                 </div>
                 
                 <p className="text-gray-400 leading-relaxed">
-                  Where style meets perfection. Experience the art of grooming with our master barbers 
-                  in the heart of Nicosia.
+                  Όπου το στυλ συναντά την τελειότητα. Ζήστε την τέχνη της περιποίησης με τους μάστορες 
+                  κουρείς μας στην καρδιά της Λευκωσίας.
                 </p>
                 
                 {/* Social Links */}
@@ -114,7 +114,7 @@ const Footer = () => {
             {/* Quick Links */}
             <BlurFade delay={0.2} inView>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-6">Quick Links</h4>
+                <h4 className="text-lg font-semibold text-white mb-6">Γρήγορες Συνδέσεις</h4>
                 <ul className="space-y-3">
                   {quickLinks.map((link) => (
                     <li key={link.name}>
@@ -137,11 +137,12 @@ const Footer = () => {
             {/* Services */}
             <BlurFade delay={0.3} inView>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-6">Our Services</h4>
+                <h4 className="text-lg font-semibold text-white mb-4">Πλήρες Πακέτο €13</h4>
+                <p className="text-blue-400 text-sm mb-4 font-medium">Περιλαμβάνει:</p>
                 <ul className="space-y-3">
-                  {services.map((service) => (
-                    <li key={service} className="text-gray-400 text-sm">
-                      {service}
+                  {serviceFeatures.map((feature) => (
+                    <li key={feature} className="text-gray-400 text-sm">
+                      • {feature}
                     </li>
                   ))}
                 </ul>
@@ -153,7 +154,7 @@ const Footer = () => {
               <div className="space-y-8">
                 {/* Contact Info */}
                 <div>
-                  <h4 className="text-lg font-semibold text-white mb-6">Contact Info</h4>
+                  <h4 className="text-lg font-semibold text-white mb-6">Στοιχεία Επικοινωνίας</h4>
                   <div className="space-y-4">
                     {contactInfo.map((info) => (
                       <a
@@ -174,13 +175,13 @@ const Footer = () => {
                 <div>
                   <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     <Clock className="w-5 h-5 text-blue-500" />
-                    Working Hours
+                    Ώρες Λειτουργίας
                   </h4>
                   <div className="space-y-2">
                     {workingHours.map((schedule) => (
                       <div key={schedule.day} className="flex justify-between text-sm">
                         <span className="text-gray-400">{schedule.day}</span>
-                        <span className={schedule.time === 'Closed' ? 'text-red-400' : 'text-gray-300'}>
+                        <span className={schedule.time === 'Κλειστό' ? 'text-red-400' : 'text-gray-300'}>
                           {schedule.time}
                         </span>
                       </div>
@@ -203,10 +204,10 @@ const Footer = () => {
                 
                 <div className="flex gap-6 text-sm">
                   <a href="/privacy-policy" className="text-gray-400 hover:text-blue-400 transition-colors">
-                    Privacy Policy
+                    Πολιτική Απορρήτου
                   </a>
                   <a href="/terms-of-service" className="text-gray-400 hover:text-blue-400 transition-colors">
-                    Terms of Service
+                    Όροι Υπηρεσίας
                   </a>
                 </div>
               </div>

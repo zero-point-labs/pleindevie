@@ -9,13 +9,13 @@ import { cn } from '@/lib/utils';
 
 const WorkingHours = () => {
   const hours = [
-    { day: 'Monday', time: '09 AM - 07 PM', isOpen: true },
-    { day: 'Tuesday', time: '09 AM - 07 PM', isOpen: true },
-    { day: 'Wednesday', time: '09 AM - 07 PM', isOpen: true },
-    { day: 'Thursday', time: '09 AM - 07 PM', isOpen: true },
-    { day: 'Friday', time: '09 AM - 07 PM', isOpen: true },
-    { day: 'Saturday', time: '09 AM - 04 PM', isOpen: true },
-    { day: 'Sunday', time: 'CLOSED', isOpen: false },
+    { day: 'Δευτέρα', time: 'ΚΛΕΙΣΤΟ', isOpen: false },
+    { day: 'Τρίτη', time: '09:00 - 19:00', isOpen: true },
+    { day: 'Τετάρτη', time: '09:00 - 19:00', isOpen: true },
+    { day: 'Πέμπτη', time: '09:00 - 19:00', isOpen: true },
+    { day: 'Παρασκευή', time: '09:00 - 19:00', isOpen: true },
+    { day: 'Σάββατο', time: '09:00 - 16:00', isOpen: true },
+    { day: 'Κυριακή', time: 'ΚΛΕΙΣΤΟ', isOpen: false },
   ];
 
   const currentDay = new Date().getDay();
@@ -50,17 +50,17 @@ const WorkingHours = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-sm font-semibold text-blue-400 uppercase tracking-wider mb-3 sm:mb-4">
-              Open Hours
+              Ώρες Λειτουργίας
             </h2>
             <SparklesText
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6"
               colors={{ first: "#3b82f6", second: "#60a5fa" }}
               sparklesCount={4}
             >
-              Visit Us Today
+              Επισκεφθείτε Μας Σήμερα
             </SparklesText>
             <p className="text-base sm:text-lg lg:text-xl text-gray-400 leading-relaxed">
-              Our doors are open and our master barbers are ready to give you the perfect look
+              Οι πόρτες μας είναι ανοιχτές και οι μάστορες κουρείς μας είναι έτοιμοι να σας δώσουν το τέλειο look
             </p>
           </motion.div>
         </BlurFade>
@@ -120,7 +120,7 @@ const WorkingHours = () => {
                               {schedule.day}
                             </h3>
                             {todayIndex === index && (
-                              <span className="text-xs text-blue-400 font-medium">TODAY</span>
+                              <span className="text-xs text-blue-400 font-medium">ΣΗΜΕΡΑ</span>
                             )}
                           </div>
                         </div>
@@ -156,7 +156,7 @@ const WorkingHours = () => {
                   <div className="flex items-start gap-3">
                     <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                     <p className="text-sm sm:text-base text-gray-300">
-                      Walk-ins welcome! Appointments recommended for weekends.
+                      Καλωσορίζουμε επισκέψεις χωρίς ραντεβού! Συνιστώνται ραντεβού για τα Σαββατοκύριακα.
                     </p>
                   </div>
                 </motion.div>
@@ -182,13 +182,13 @@ const WorkingHours = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
           >
-            <p className="text-sm sm:text-base text-gray-400 mb-2 sm:mb-3">Ready for your transformation?</p>
+            <p className="text-sm sm:text-base text-gray-400 mb-2 sm:mb-3">Ετοιμοι για τη μεταμόρφωσή σας;</p>
             <a 
               href="tel:+35797825899"
               className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-base sm:text-lg font-medium"
             >
               <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-              Call Now: 97 825899
+              Καλέστε Τώρα: 97 825899
             </a>
           </motion.div>
         </BlurFade>

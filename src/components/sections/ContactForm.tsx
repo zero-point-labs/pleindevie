@@ -49,16 +49,13 @@ const ContactForm = () => {
     });
     
     setIsSubmitting(false);
-    alert('Thank you for your message! We\'ll get back to you soon.');
+    alert('Ευχαριστούμε για το μήνυμά σας! Θα επικοινωνήσουμε μαζί σας σύντομα.');
   };
 
   const services = [
-    'Classic Haircut',
-    'Beard Trim & Shape',
-    'Premium Experience',
-    'Hot Shave',
-    'Hair Styling',
-    'Face Mask Treatment',
+    'Πλήρες Πακέτο Περιποίησης',
+    'Γενική Ερώτηση',
+    'Πληροφορίες για Ραντεβού',
   ];
 
   return (
@@ -84,17 +81,17 @@ const ContactForm = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-4">
-              Get in Touch
+              Επικοινωνία
             </h2>
             <SparklesText
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6"
               colors={{ first: "#3b82f6", second: "#60a5fa" }}
               sparklesCount={4}
             >
-              Book Your Visit
+              Κλείστε την Επίσκεψή σας
             </SparklesText>
             <p className="text-lg sm:text-xl text-gray-600 mx-auto">
-              Ready for a transformation? Send us a message or book your appointment directly
+              Ετοιμοι για μια μεταμόρφωση; Στείλτε μας ένα μήνυμα ή κλείστε ραντεβού απευθείας
             </p>
           </motion.div>
         </BlurFade>
@@ -111,7 +108,7 @@ const ContactForm = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Your Name
+                      Το Όνομά σας
                     </label>
                     <Input
                       id="name"
@@ -120,14 +117,14 @@ const ContactForm = () => {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      placeholder="John Doe"
+                      placeholder="Γιάννης Παπαδόπουλος"
                       className="w-full"
                     />
                   </div>
                   
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number
+                      Αριθμός Τηλεφώνου
                     </label>
                     <Input
                       id="phone"
@@ -144,7 +141,7 @@ const ContactForm = () => {
 
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
+                    Ε-mail Διεύθυνση
                   </label>
                   <Input
                     id="email"
@@ -153,14 +150,14 @@ const ContactForm = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    placeholder="john@example.com"
+                    placeholder="giannis@example.com"
                     className="w-full"
                   />
                 </div>
 
                 <div>
                   <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2">
-                    Service Interest
+                    Ενδιαφέρον για Υπηρεσία
                   </label>
                   <select
                     id="service"
@@ -169,7 +166,7 @@ const ContactForm = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select a service</option>
+                    <option value="">Επιλέξτε μια υπηρεσία</option>
                     {services.map(service => (
                       <option key={service} value={service}>{service}</option>
                     ))}
@@ -178,7 +175,7 @@ const ContactForm = () => {
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Message (Optional)
+                    Μήνυμα (Προαιρετικό)
                   </label>
                   <Textarea
                     id="message"
@@ -186,7 +183,7 @@ const ContactForm = () => {
                     value={formData.message}
                     onChange={handleChange}
                     rows={4}
-                    placeholder="Tell us about your preferred date/time or any special requests..."
+                    placeholder="Πείτε μας για την προτιμώμενη ημερομηνία/ώρα ή ειδικές αιτήσεις..."
                     className="w-full"
                   />
                 </div>
@@ -198,11 +195,11 @@ const ContactForm = () => {
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isSubmitting ? (
-                    'Sending...'
+                    'Αποστολή...'
                   ) : (
                     <>
                       <Send className="mr-2 h-5 w-5" />
-                      Send Message
+                      Αποστολή Μηνύματος
                     </>
                   )}
                 </Button>
@@ -224,8 +221,8 @@ const ContactForm = () => {
                     <Calendar className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">Prefer Online Booking?</h3>
-                    <p className="text-gray-600">Book your appointment instantly</p>
+                    <h3 className="text-xl font-bold text-gray-900">Προτιμάτε Online Κρατήσεις;</h3>
+                    <p className="text-gray-600">Κλείστε ραντεβού άμεσα</p>
                   </div>
                 </div>
                 <Button
@@ -234,13 +231,13 @@ const ContactForm = () => {
                     window.open('https://pleindevie.setmore.com/?fbclid=PAZXh0bgNhZW0CMTEAAadRNjEz4yqLV0E29vgg08nRtjNk9S4igPVKoQKzeztGj2I27sWxFnes7fKsPw_aem_xBfghmvbmbu272QiHfbQaA', '_blank');
                   }}
                 >
-                  Book Online Now
+                  Κλείστε Online Τώρα
                 </Button>
               </motion.div>
 
               {/* Contact Information */}
               <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Contact Information</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Στοιχεία Επικοινωνίας</h3>
                 
                 <div className="space-y-4">
                   <a
@@ -251,7 +248,7 @@ const ContactForm = () => {
                       <Phone className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Call Us</p>
+                      <p className="font-medium text-gray-900">Καλέστε Μας</p>
                       <p className="text-gray-600">+357 97 825899</p>
                     </div>
                   </a>
@@ -264,7 +261,7 @@ const ContactForm = () => {
                       <Mail className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Email Us</p>
+                      <p className="font-medium text-gray-900">Ε-mail</p>
                       <p className="text-gray-600 break-all">pleindeviepleindevie@gmail.com</p>
                     </div>
                   </a>
@@ -279,7 +276,7 @@ const ContactForm = () => {
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Visit Us</p>
+                      <p className="font-medium text-gray-900">Επισκεφθείτε Μας</p>
                       <p className="text-gray-600">
                         Eleftherias 21, Lakatamia 2304<br />
                         Nicosia, Cyprus

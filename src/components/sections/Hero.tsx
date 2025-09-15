@@ -132,14 +132,8 @@ const Hero = () => {
     >
       {/* Video Background */}
       <div className="absolute inset-0 z-0">
-        {/* Fallback background image for when video doesn't play */}
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/barber-context/aboutus.png)',
-            filter: 'contrast(1.1) saturate(1.1) brightness(0.7)',
-          }}
-        />
+        {/* Fallback gradient background for when video doesn't play */}
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-800" />
         
         <video
           ref={videoRef}
@@ -151,7 +145,6 @@ const Hero = () => {
           controls={false}
           disablePictureInPicture
           disableRemotePlayback
-          poster="/barber-context/aboutus.png"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
             isVideoPlaying ? 'opacity-100' : 'opacity-0'
           }`}

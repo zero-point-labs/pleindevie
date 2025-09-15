@@ -91,7 +91,7 @@ const Services = () => {
                       <Sparkles className="w-4 h-4" />
                       ΣΥΝΟΛΙΚΟ ΠΑΚΕΤΟ
                     </div>
-                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">{mainService.title}</h3>
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-6 px-2">{mainService.title}</h3>
                     <div className="w-full px-4 mb-8">
                       <p className="text-xl text-gray-400 leading-relaxed text-center max-w-none">
                         {mainService.description}

@@ -55,8 +55,8 @@ const About = () => {
 
             <BlurFade delay={0.4} inView>
               <p className="text-lg text-gray-600 leading-relaxed">
-                Το κουρείο μας ιδρύθηκε το 2004 από τους γονείς του Χρίστου και γρήγορα ξεχώρισε κερδίζοντας 
-                την εμπιστοσύνη της τοπικής κοινότητας. Το 2022, ο Χρίστος ανακαίνισε τον χώρο και τον μετέτρεψε 
+                Το κουρείο μας ιδρύθηκε το 2004 από τους γονείς του Χρίστου Ιωάννου και γρήγορα ξεχώρισε κερδίζοντας 
+                την εμπιστοσύνη της τοπικής κοινότητας. Το 2022, ο Χρίστος Ιωάννου ανακαίνισε τον χώρο και τον μετέτρεψε 
                 σε ένα σύγχρονο barbershop, που σήμερα θεωρείται από τα καλύτερα στη Λευκωσία, προσφέροντας 
                 στυλ, ποιότητα και μοναδική εμπειρία περιποίησης.
               </p>
@@ -67,8 +67,8 @@ const About = () => {
               <div className="relative lg:hidden">
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                   <Image
-                    src="/barber-context/aboutus.png"
-                    alt="Plein De Vie Barbershop Interior"
+                    src="/christos.png"
+                    alt="Χρίστος Ιωάννου - Ιδιοκτήτης Plein De Vie"
                     width={600}
                     height={700}
                     className="object-cover w-full h-full"
@@ -147,8 +147,8 @@ const About = () => {
             <div className="relative lg:order-1 hidden lg:block">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/barber-context/aboutus.png"
-                  alt="Plein De Vie Barbershop Interior"
+                  src="/christos.png"
+                  alt="Χρίστος Ιωάννου - Ιδιοκτήτης Plein De Vie"
                   width={600}
                   height={700}
                   className="object-cover w-full h-full"

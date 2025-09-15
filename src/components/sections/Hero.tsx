@@ -15,10 +15,10 @@ const Hero = () => {
   // Rotating text for subtitle
   const [textIndex, setTextIndex] = useState(0);
   const subtitleVariants = [
-    'Όπου το Στυλ Συναντά την Τελειότητα',
-    'Premium Εμπειρία Περιποίησης',
-    'Το Signature Look σας σας Περιμένει',
-    'Κατασκευασμένο με Ακρίβεια'
+    'Where Style Meets Perfection',
+    'Premium Grooming Experience',
+    'Your Signature Look Awaits',
+    'Crafted with Precision'
   ];
   
   useEffect(() => {

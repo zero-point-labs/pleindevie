@@ -3,6 +3,7 @@
 import Header from '@/components/layout/Header';
 import Hero from '@/components/sections/Hero';
 import About from '@/components/sections/About';
+import MeetBarber from '@/components/sections/MeetBarber';
 import Services from '@/components/sections/Services';
 import WorkingHours from '@/components/sections/WorkingHours';
 import ContactForm from '@/components/sections/ContactForm';
@@ -17,6 +18,9 @@ export default function Home() {
         
         {/* About Section - Right after Hero */}
         <About />
+        
+        {/* Meet Our Barber Section */}
+        <MeetBarber />
         
         {/* Services Section */}
         <Services />

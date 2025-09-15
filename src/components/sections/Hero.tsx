@@ -56,68 +56,48 @@ const Hero = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Force video attributes for mobile compatibility
-    video.setAttribute('webkit-playsinline', 'true');
-    video.setAttribute('playsinline', 'true');
-    video.setAttribute('muted', 'true');
-    video.muted = true;
-    video.defaultMuted = true;
+    // Set video to always be visible (even if not playing)
+    setIsVideoPlaying(true);
 
-    // Video event listeners
-    const handlePlay = () => setIsVideoPlaying(true);
-    const handlePause = () => setIsVideoPlaying(false);
-    
-    const attemptPlay = () => {
-      // Reset video to ensure clean state
-      video.currentTime = 0;
-      
-      // Try multiple play methods for mobile compatibility
-      const playPromise = video.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // Autoplay started successfully
-            setIsVideoPlaying(true);
-          })
-          .catch((error) => {
-            console.log('Autoplay prevented:', error);
-            // Still show video even if not playing
-            setIsVideoPlaying(true);
-            
-            // Try to play on first user interaction
-            const playOnInteraction = () => {
-              video.play().then(() => {
-                setIsVideoPlaying(true);
-                document.removeEventListener('touchstart', playOnInteraction);
-                document.removeEventListener('click', playOnInteraction);
-              }).catch(() => {});
-            };
-            
-            document.addEventListener('touchstart', playOnInteraction, { once: true });
-            document.addEventListener('click', playOnInteraction, { once: true });
-          });
+    // Simple autoplay attempt
+    const attemptAutoplay = async () => {
+      try {
+        // Ensure video is muted (required for autoplay)
+        video.muted = true;
+        video.defaultMuted = true;
+        
+        // Try to play
+        await video.play();
+        console.log('Video autoplay successful');
+      } catch (error) {
+        console.log('Video autoplay failed, will play on user interaction:', error);
+        
+        // Fallback: Play on first user interaction
+        const playOnUserInteraction = async () => {
+          try {
+            await video.play();
+            console.log('Video started on user interaction');
+          } catch (e) {
+            console.log('Video play failed:', e);
+          }
+        };
+        
+        // Add listeners for user interaction
+        document.addEventListener('click', playOnUserInteraction, { once: true });
+        document.addEventListener('touchstart', playOnUserInteraction, { once: true });
+        document.addEventListener('scroll', playOnUserInteraction, { once: true });
       }
     };
 
-    // Add event listeners
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    video.addEventListener('playing', handlePlay);
-    video.addEventListener('loadedmetadata', attemptPlay);
-    video.addEventListener('canplay', attemptPlay);
-
-    // Try to play immediately if video is ready
-    if (video.readyState >= 2) {
-      attemptPlay();
+    // Wait for video to be ready then attempt play
+    if (video.readyState >= 3) {
+      attemptAutoplay();
+    } else {
+      video.addEventListener('canplaythrough', attemptAutoplay, { once: true });
     }
 
     return () => {
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
-      video.removeEventListener('playing', handlePlay);
-      video.removeEventListener('loadedmetadata', attemptPlay);
-      video.removeEventListener('canplay', attemptPlay);
+      // Cleanup if needed
     };
   }, []);
 
@@ -180,24 +160,16 @@ const Hero = () => {
         
         <video
           ref={videoRef}
-          autoPlay={true}
-          loop={true}
-          muted={true}
-          playsInline={true}
-          webkit-playsinline="true"
-          x5-video-player-type="h5"
-          x5-video-player-fullscreen="false"
-          x5-video-orientation="portraitlandscape"
+          autoPlay
+          loop
+          muted
+          playsInline
           preload="auto"
-          poster=""
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
             isVideoPlaying ? 'opacity-100' : 'opacity-70'
           }`}
           style={{
             filter: 'contrast(1.1) saturate(1.1) brightness(0.9)',
-            objectFit: 'cover',
-            width: '100%',
-            height: '100%',
           }}
         >
           <source src="/video-background-compressed.mp4" type="video/mp4" />

@@ -51,7 +51,7 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Video handling for mobile
+  // Video handling for mobile and desktop
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -59,22 +59,33 @@ const Hero = () => {
     // Video event listeners
     const handlePlay = () => setIsVideoPlaying(true);
     const handlePause = () => setIsVideoPlaying(false);
-    const handleLoadedData = () => {
-      // Try to play video, but don't force it
-      video.play().catch(() => {
-        // Autoplay was prevented, which is fine
-        setIsVideoPlaying(false);
+    const handleCanPlay = () => {
+      // Try to play video when it can play through
+      video.play().catch((error) => {
+        console.log('Autoplay prevented:', error);
+        // If autoplay fails, show the video anyway
+        setIsVideoPlaying(true);
       });
     };
 
+    // Add event listeners
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
-    video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('playing', handlePlay);
+
+    // Try to play immediately if video is ready
+    if (video.readyState >= 3) {
+      video.play().catch(() => {
+        setIsVideoPlaying(true); // Show video even if autoplay fails
+      });
+    }
 
     return () => {
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
-      video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('playing', handlePlay);
     };
   }, []);
 
@@ -141,20 +152,15 @@ const Hero = () => {
           loop
           muted
           playsInline
-          preload="metadata"
-          controls={false}
-          disablePictureInPicture
-          disableRemotePlayback
+          preload="auto"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-            isVideoPlaying ? 'opacity-100' : 'opacity-0'
+            isVideoPlaying ? 'opacity-100' : 'opacity-70'
           }`}
           style={{
             filter: 'contrast(1.1) saturate(1.1) brightness(0.9)',
           }}
-          // Additional mobile-friendly attributes
-          data-object-fit="cover"
         >
-          <source src="/video-backround-compressed.mp4" type="video/mp4" />
+          <source src="/video-background-compressed.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         {/* Dark overlay for text readability */}

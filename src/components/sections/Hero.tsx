@@ -7,7 +7,7 @@ import { ANIMATION_DURATION, ANIMATION_EASE } from '@/constants';
 import { useInView } from '@/hooks/useInView';
 
 import { Phone, MapPin, Clock, Calendar } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getCurrentBusinessStatus } from '@/utils/businessHours';
 
 const Hero = () => {
@@ -24,6 +24,10 @@ const Hero = () => {
   
   // Business status state
   const [businessStatus, setBusinessStatus] = useState(getCurrentBusinessStatus());
+  
+  // Video playback state
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -45,6 +49,33 @@ const Hero = () => {
     const interval = setInterval(updateBusinessStatus, 60000);
     
     return () => clearInterval(interval);
+  }, []);
+
+  // Video handling for mobile
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Video event listeners
+    const handlePlay = () => setIsVideoPlaying(true);
+    const handlePause = () => setIsVideoPlaying(false);
+    const handleLoadedData = () => {
+      // Try to play video, but don't force it
+      video.play().catch(() => {
+        // Autoplay was prevented, which is fine
+        setIsVideoPlaying(false);
+      });
+    };
+
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('loadeddata', handleLoadedData);
+
+    return () => {
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('loadeddata', handleLoadedData);
+    };
   }, []);
 
   // Animation variants for staggered text animations
@@ -101,27 +132,34 @@ const Hero = () => {
     >
       {/* Video Background */}
       <div className="absolute inset-0 z-0">
+        {/* Fallback background image for when video doesn't play */}
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(/barber-context/aboutus.png)',
+            filter: 'contrast(1.1) saturate(1.1) brightness(0.7)',
+          }}
+        />
+        
         <video
+          ref={videoRef}
           autoPlay
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           controls={false}
           disablePictureInPicture
-          webkit-playsinline="true"
-          x5-playsinline="true"
-          className="absolute inset-0 w-full h-full object-cover"
+          disableRemotePlayback
+          poster="/barber-context/aboutus.png"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+            isVideoPlaying ? 'opacity-100' : 'opacity-0'
+          }`}
           style={{
             filter: 'contrast(1.1) saturate(1.1) brightness(0.9)',
           }}
-          onLoadedData={(e) => {
-            const video = e.target as HTMLVideoElement;
-            video.play().catch(() => {
-              // If autoplay fails, that's okay - show static background
-              console.log('Video autoplay prevented by browser');
-            });
-          }}
+          // Additional mobile-friendly attributes
+          data-object-fit="cover"
         >
           <source src="/video-backround-compressed.mp4" type="video/mp4" />
           Your browser does not support the video tag.

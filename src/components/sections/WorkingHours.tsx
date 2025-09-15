@@ -6,17 +6,10 @@ import { BorderBeam } from '@/components/ui/border-beam';
 import { SparklesText } from '@/components/ui/sparkles-text';
 import { Clock, Calendar, Scissors, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BUSINESS_HOURS } from '@/utils/businessHours';
 
 const WorkingHours = () => {
-  const hours = [
-    { day: 'Δευτέρα', time: 'ΚΛΕΙΣΤΟ', isOpen: false },
-    { day: 'Τρίτη', time: '09:00 - 19:00', isOpen: true },
-    { day: 'Τετάρτη', time: '09:00 - 19:00', isOpen: true },
-    { day: 'Πέμπτη', time: '09:00 - 19:00', isOpen: true },
-    { day: 'Παρασκευή', time: '09:00 - 19:00', isOpen: true },
-    { day: 'Σάββατο', time: '09:00 - 16:00', isOpen: true },
-    { day: 'Κυριακή', time: 'ΚΛΕΙΣΤΟ', isOpen: false },
-  ];
+  const hours = BUSINESS_HOURS;
 
   const currentDay = new Date().getDay();
   const dayMap = [6, 0, 1, 2, 3, 4, 5]; // Map Sunday (0) to Saturday (6)

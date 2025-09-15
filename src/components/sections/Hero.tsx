@@ -8,6 +8,7 @@ import { useInView } from '@/hooks/useInView';
 
 import { Phone, MapPin, Clock, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { getCurrentBusinessStatus } from '@/utils/businessHours';
 
 const Hero = () => {
   const { ref: heroRef } = useInView();
@@ -21,12 +22,30 @@ const Hero = () => {
     'Crafted with Precision'
   ];
   
+  // Business status state
+  const [businessStatus, setBusinessStatus] = useState(getCurrentBusinessStatus());
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setTextIndex((prev) => (prev + 1) % subtitleVariants.length);
     }, 3000);
     return () => clearInterval(interval);
   }, [subtitleVariants.length]);
+
+  // Update business status every minute
+  useEffect(() => {
+    const updateBusinessStatus = () => {
+      setBusinessStatus(getCurrentBusinessStatus());
+    };
+    
+    // Update immediately
+    updateBusinessStatus();
+    
+    // Update every minute
+    const interval = setInterval(updateBusinessStatus, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Animation variants for staggered text animations
   const containerVariants = {
@@ -88,9 +107,20 @@ const Hero = () => {
           muted
           playsInline
           preload="auto"
+          controls={false}
+          disablePictureInPicture
+          webkit-playsinline="true"
+          x5-playsinline="true"
           className="absolute inset-0 w-full h-full object-cover"
           style={{
             filter: 'contrast(1.1) saturate(1.1) brightness(0.9)',
+          }}
+          onLoadedData={(e) => {
+            const video = e.target as HTMLVideoElement;
+            video.play().catch(() => {
+              // If autoplay fails, that's okay - show static background
+              console.log('Video autoplay prevented by browser');
+            });
           }}
         >
           <source src="/video-backround-compressed.mp4" type="video/mp4" />
@@ -222,8 +252,8 @@ const Hero = () => {
                 <span>Eleftherias 21, Lakatamia</span>
               </a>
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-green-400" />
-                <span className="text-green-400">Ανοιχτά Τώρα</span>
+                <Clock className={`h-4 w-4 ${businessStatus.isOpen ? 'text-green-400' : 'text-red-400'}`} />
+                <span className={businessStatus.displayColor}>{businessStatus.displayText}</span>
               </div>
             </motion.div>
 
@@ -253,9 +283,11 @@ const Hero = () => {
         }}
       >
         <div className="flex flex-col items-center space-y-2 cursor-pointer">
-          <span className="text-xs text-gray-400 uppercase tracking-wider">Ανακαλύψτε Περισσότερα</span>
+          <span className="text-xs sm:text-sm text-gray-400 uppercase tracking-wider text-center whitespace-nowrap">
+            Ανακαλύψτε Περισσότερα
+          </span>
           <motion.div
-            className="h-6 w-4 border-2 border-gray-600 rounded-full flex justify-center"
+            className="h-6 w-4 border-2 border-gray-600 rounded-full flex justify-center items-start"
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           >

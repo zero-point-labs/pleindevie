@@ -147,7 +147,7 @@ const About = () => {
             <div className="relative lg:order-1 hidden lg:block">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/christos.png"
+                  src="/christosv2.png"
                   alt="Χρίστος Ιωάννου - Ιδιοκτήτης Plein De Vie"
                   width={600}
                   height={700}

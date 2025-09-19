@@ -73,7 +73,7 @@ const MeetBarber = () => {
             >
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/andonis.png"
+                  src="/andonisv2.png"
                   alt="Αντώνης Πολυκάρπου - Κουρέας στο Plein De Vie"
                   width={600}
                   height={700}

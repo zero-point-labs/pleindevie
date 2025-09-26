@@ -267,7 +267,7 @@ const ContactForm = () => {
                   </a>
 
                   <a
-                    href="https://maps.google.com/?q=Eleftherias+21+Lakatamia+2304+Nicosia+Cyprus"
+                    href="https://maps.google.com/?q=Eleftherias+27A+Taxidromikos+2300+Cyprus"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors group"
@@ -278,8 +278,8 @@ const ContactForm = () => {
                     <div>
                       <p className="font-medium text-gray-900">Επισκεφθείτε Μας</p>
                       <p className="text-gray-600">
-                        Eleftherias 21, Lakatamia 2304<br />
-                        Nicosia, Cyprus
+                        Eleftherias 27A, Taxidromikos 2300<br />
+                        Cyprus
                       </p>
                     </div>
                   </a>

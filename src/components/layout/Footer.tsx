@@ -34,8 +34,8 @@ const Footer = () => {
     {
       icon: MapPin,
       label: 'Διεύθυνση',
-      value: 'Eleftherias 21, Lakatamia 2304, Nicosia, Cyprus',
-      href: 'https://maps.google.com/?q=Eleftherias+21+Lakatamia+2304+Nicosia+Cyprus',
+      value: 'Eleftherias 27A, Taxidromikos 2300, Cyprus',
+      href: 'https://maps.google.com/?q=Eleftherias+27A+Taxidromikos+2300+Cyprus',
     },
     {
       icon: Mail,

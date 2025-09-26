@@ -64,7 +64,7 @@ src/
 
 - **Phone**: +357 97 825899
 - **Email**: pleindeviepleindevie@gmail.com
-- **Address**: Eleftherias 21, Lakatamia 2304, Nicosia, Cyprus
+- **Address**: Eleftherias 27A, Taxidromikos 2300, Cyprus
 - **Online Booking**: [Book Appointment](https://pleindevie.setmore.com)
 
 ## Technologies Used

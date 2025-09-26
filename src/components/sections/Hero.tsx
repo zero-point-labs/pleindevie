@@ -292,13 +292,13 @@ const Hero = () => {
                 <span>97 825899</span>
               </a>
               <a 
-                href="https://maps.google.com/?q=Eleftherias+21+Lakatamia+2304+Nicosia+Cyprus"
+                href="https://maps.google.com/?q=Eleftherias+27A+Taxidromikos+2300+Cyprus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 hover:text-white transition-colors"
               >
                 <MapPin className="h-4 w-4" />
-                <span>Eleftherias 21, Lakatamia</span>
+                <span>Eleftherias 27A, Taxidromikos</span>
               </a>
               <div className="flex items-center gap-2">
                 <Clock className={`h-4 w-4 ${businessStatus.isOpen ? 'text-green-400' : 'text-red-400'}`} />
@@ -314,7 +314,7 @@ const Hero = () => {
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600/20 to-blue-500/20 backdrop-blur-md border border-blue-500/30 rounded-full px-6 py-3">
                 <span className="text-xs uppercase tracking-wider text-blue-300">Premium Κουρείο</span>
                 <span className="text-white">•</span>
-                <span className="text-xs text-gray-300">Λακατάμια, Λευκωσία</span>
+                <span className="text-xs text-gray-300">Taxidromikos 2300</span>
               </div>
             </motion.div>
           </motion.div>

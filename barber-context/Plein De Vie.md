@@ -1,7 +1,7 @@
 Business Name: Plein De Vie
 Business Type: Barber Shop
 Services: Haircut, Beard Trim, Facemasks, Man Shave, Hair Styling, Wax 
-Location: Eleftherias 21, Lakatamia 2304, Nicosia, Cyprus
+Location: Eleftherias 27A, Taxidromikos 2300, Cyprus
 Contact us
 97 825899
 pleindeviepleindevie@gmail.com
